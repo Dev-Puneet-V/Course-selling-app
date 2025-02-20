@@ -5,7 +5,7 @@ const courseSchema = mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
+      set: (value) => value.toLowerCase(),
     },
     price: {
       type: Number,
@@ -21,9 +21,15 @@ const courseSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    imageUrl: {
-      type: String,
-      required: true,
+    image: {
+      url: {
+        type: String,
+        required: true,
+      },
+      publicId: {
+        type: String,
+        required: true,
+      },
     },
     contents: [
       {
@@ -31,6 +37,10 @@ const courseSchema = mongoose.Schema(
         ref: "Content",
       },
     ],
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,

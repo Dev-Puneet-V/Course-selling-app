@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
+import User from "../models/user.js";
 import { variables } from "./config.js";
 export const isAdmin = (req, res, next) => {
-  if (req.user?.isAdmin) {
+  if (req.user?.role === "admin") {
     next();
   } else {
     res.status(403).json({
@@ -10,7 +11,7 @@ export const isAdmin = (req, res, next) => {
   }
 };
 
-export const auth = (req, res, next) => {
+export const auth = async (req, res, next) => {
   try {
     const authToken = req.headers.authorization;
     if (!authToken) {
@@ -18,8 +19,18 @@ export const auth = (req, res, next) => {
         message: "User is unauthorized",
       });
     } else {
-      const decoded = jwt.verify(authToken, variables.JWT_TOKEN_SECRET);
-      req.user = decoded.user;
+      const decoded = jwt.verify(
+        authToken.split(" ")[1],
+        variables.JWT_TOKEN_SECRET
+      );
+      const user = await User.findById(decoded.userId).select("-password");
+
+      if (!user) {
+        const error = new Error("Unauthorized");
+        error.status(401);
+        throw error;
+      }
+      req.user = user;
       next();
     }
   } catch (err) {
