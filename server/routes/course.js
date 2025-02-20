@@ -83,6 +83,62 @@ router.delete("/:courseId", auth, isAdmin, async (req, res) => {
     });
   }
 });
+
+// add new content to a course
+router.post(
+  "/:courseId/content",
+  auth,
+  isAdmin,
+  upload.single("content"),
+  async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      const { contentType, topic } = req.body;
+      console.log(req.body);
+      const contentObject = z.object({
+        contentType: z.enum(["video", "pdf"]),
+        topic: z.string().min(10),
+      });
+      contentObject.parse(req.body);
+      const course = await Course.findOne({
+        _id: courseId,
+        owner: req.user._id,
+      });
+      if (!course) {
+        const error = new Error("Course not found");
+        error.status = 404;
+        throw error;
+      }
+      const uploadedFile = await uploadToCloudinary(req.file.path);
+      const { secure_url, public_id } = uploadedFile;
+      console.log(uploadedFile);
+      const newContent = await Content.create({
+        contentType,
+        topic,
+        content: {
+          url: secure_url,
+          publicId: public_id,
+        },
+      });
+      course.contents.push(newContent?._id);
+      await course.save();
+      res.status(200).json({
+        message: "successfully content created",
+        data: newContent,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(error.status || 500).json({
+        message: error.message || "Error adding new content",
+      });
+    } finally {
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+    }
+  }
+);
+
 router.put("/:courseId", auth, isAdmin, (req, res) => {});
 
 router.put(

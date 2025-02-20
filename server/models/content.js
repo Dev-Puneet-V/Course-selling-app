@@ -4,15 +4,21 @@ const contentSchema = mongoose.Schema(
   {
     contentType: {
       type: String,
-      enum: ["Video", "Pdf"],
+      enum: ["video", "pdf"],
     },
     topic: {
       type: String,
       required: true,
     },
-    contentUrl: {
-      type: String,
-      required: true,
+    content: {
+      url: {
+        type: String,
+        required: true,
+      },
+      publicId: {
+        type: String,
+        required: true,
+      },
     },
   },
   {
