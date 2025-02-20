@@ -2,7 +2,7 @@ import { v2 as cloudinary, uploader } from "cloudinary";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { variables } from "./config";
+import { variables } from "./config.js";
 cloudinary.config({
   cloud_name: variables.CLOUDINARY_CLOUD_NAME,
   api_key: variables.CLOUDINARY_API_KEY,

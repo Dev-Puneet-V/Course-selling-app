@@ -4,6 +4,8 @@ import { z } from "zod";
 import { auth, isAdmin } from "../utils/middleware.js";
 import { upload, uploadToCloudinary } from "../utils/fileUpload.js";
 import Course from "../models/course.js";
+import Content from "../models/content.js";
+import { promisify } from "util";
 const router = express.Router();
 
 router.post("/", auth, isAdmin, upload.single("course"), async (req, res) => {
@@ -51,7 +53,36 @@ router.post("/", auth, isAdmin, upload.single("course"), async (req, res) => {
   }
 });
 
-router.delete("/:courseId", auth, isAdmin, (req, res) => {});
+router.delete("/:courseId", auth, isAdmin, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const course = await Course.findOneAndDelete({
+      owner: req.user._id,
+      _id: courseId,
+    });
+    if (!course) {
+      const error = new Error("Course not found");
+      error.status = 404;
+      throw error;
+    }
+
+    //TODO: dont block here
+    await Promise.all(
+      course?.contents.map((content) => {
+        return Content.findByIdAndDelete(content);
+      })
+    );
+
+    res.status(200).json({
+      message: "Course deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(error.status || 500).json({
+      message: error.message || "Error deleting course",
+    });
+  }
+});
 router.put("/:courseId", auth, isAdmin, (req, res) => {});
 
 router.put(
