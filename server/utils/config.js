@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 dotenv.config();
 const variables = {
   PORT: process.env.PORT || 3000,
-  JWT_TOKEN_SECRET: process.env.JWT_TOKEN_SECRET,
+  JWT_TOKEN_SECRET: process.env.JWT_TOKEN_SECRET || "",
   JWT_EXPIRY: process.env.JWT_EXPIRY,
 };
 

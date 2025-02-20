@@ -4,6 +4,8 @@ import { variables, dbConnect } from "./utils/config.js";
 import routes from "./routes/index.js";
 const app = express();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 dbConnect();
 app.use(cors());
 app.use("/api/v1", routes);
