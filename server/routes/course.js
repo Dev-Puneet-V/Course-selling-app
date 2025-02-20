@@ -111,7 +111,6 @@ router.post(
       }
       const uploadedFile = await uploadToCloudinary(req.file.path);
       const { secure_url, public_id } = uploadedFile;
-      console.log(uploadedFile);
       const newContent = await Content.create({
         contentType,
         topic,
@@ -139,7 +138,46 @@ router.post(
   }
 );
 
-router.put("/:courseId", auth, isAdmin, (req, res) => {});
+router.put("/:courseId", auth, isAdmin, async (req, res) => {
+  try {
+    const { name, price, description } = req.body;
+    const courseObject = z.object({
+      name: z.string().min(3).max(20),
+      price: z.number().min(0),
+      description: z.string().min(10),
+    });
+    courseObject.parse({
+      ...req.body,
+      price: +price,
+    });
+    const { courseId } = req.params;
+    const course = await Course.findOneAndUpdate(
+      {
+        owner: req.user._id,
+        _id: courseId,
+      },
+      {
+        name,
+        price,
+        description,
+      },
+      { new: true, runValidators: true }
+    );
+    if (!course) {
+      const error = new Error("Course not found");
+      error.status = 404;
+      throw error;
+    }
+    res.status(200).json({
+      message: "Course details updated successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(error.status || 500).json({
+      message: error.messag || "Internal server error",
+    });
+  }
+});
 
 router.put(
   "/:courseId/remove-content/:contentId",
