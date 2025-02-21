@@ -179,17 +179,41 @@ router.put("/:courseId", auth, isAdmin, async (req, res) => {
   }
 });
 
-router.put(
-  "/:courseId/remove-content/:contentId",
+router.delete(
+  "/:courseId/content/:contentId",
   auth,
   isAdmin,
-  (req, res) => {}
-);
-router.put(
-  "/:courseId/update-content/:contentId",
-  auth,
-  isAdmin,
-  (req, res) => {}
+  async (req, res) => {
+    try {
+      const { courseId, contentId } = req.params;
+      const course = await Course.findOne({
+        _id: courseId,
+        owner: req.user._id,
+      });
+      if (!course) {
+        const error = new Error("Course not found");
+        error.status = 404;
+        throw error;
+      }
+      const contentExists = course?.contents?.some(
+        (content) => String(content) === contentId
+      );
+      if (!contentExists) {
+        const error = new Error("Content not found");
+        error.status = 404;
+        throw error;
+      }
+      await Content.findByIdAndDelete(contentId);
+      res.status(200).json({
+        message: "Successfully content deleted",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(error.status || 500).json({
+        message: error.messag || "Internal server error",
+      });
+    }
+  }
 );
 
 router.get("/:courseId/content", auth, (req, res) => {});
