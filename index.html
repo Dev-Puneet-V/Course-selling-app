@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Razorpay Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </head>
+  <body>
+    <h2>Buy Course</h2>
+    <button id="pay-btn">Pay Now</button>
+
+    <script>
+      document.getElementById("pay-btn").addEventListener("click", async () => {
+        try {
+          // 1️⃣ Call your backend to create an order
+          const response = await fetch(
+            "http://localhost:3000/api/v1/payment/request/67b8380414848937fc6d0901",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization:
+                  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2I2YzBiYzFhN2EzNDczNjA2ZWFiYWMiLCJpYXQiOjE3NDAxMjA5NTYsImV4cCI6MTc0MDIwNzM1Nn0.F0IYRkBO14QHhlF9VGQn7ix48NqFFBLgqOQs6K_eMWM",
+              },
+            }
+          );
+
+          const orderData = await response.json();
+          console.log(orderData);
+          if (!orderData.data) throw new Error(orderData.message);
+
+          const options = {
+            key: "rzp_test_r9x0083Lr1W1nI", // Replace with your Razorpay Key
+            amount: orderData.data?.amount, // Amount in paisa
+            currency: "INR",
+            name: "Your Website",
+            description: "Course Purchase",
+            order_id: orderData.data?.id,
+            handler: async function (paymentData) {
+              console.log(paymentData);
+              const verifyResponse = await fetch(
+                "http://localhost:3000/api/v1/payment/confirm",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization:
+                      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2I2YzBiYzFhN2EzNDczNjA2ZWFiYWMiLCJpYXQiOjE3NDAxMjA5NTYsImV4cCI6MTc0MDIwNzM1Nn0.F0IYRkBO14QHhlF9VGQn7ix48NqFFBLgqOQs6K_eMWM",
+                  },
+                  body: JSON.stringify({
+                    orderId: paymentData.razorpay_order_id,
+                    paymentId: paymentData.razorpay_payment_id,
+                    signature: paymentData.razorpay_signature,
+                  }),
+                }
+              );
+
+              const verifyData = await verifyResponse.json();
+              if (verifyData.success) {
+                alert("Payment Successful!");
+              } else {
+                alert("Payment Failed! Try again.");
+              }
+            },
+            theme: { color: "#3399cc" },
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+        } catch (error) {
+          console.error("Error:", error.message);
+          alert("Something went wrong. Please try again.");
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -3,6 +3,8 @@ import { z } from "zod";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import { variables } from "../utils/config.js";
+import Course from "../models/course.js";
+import { auth } from "../utils/middleware.js";
 const router = express.Router();
 
 router.post("/signup", async (req, res) => {
@@ -109,5 +111,30 @@ router.post("/signin", async (req, res) => {
     });
   }
 });
-// router.get("/courses", (req, res) => {});
+router.get("/:userId/courses", auth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    let courses = await Course.find({
+      owner: userId,
+    }).lean();
+    courses = courses?.map((course) => {
+      return {
+        ...course,
+        owner: undefined,
+        contents: undefined,
+        subscribers: undefined,
+        __v: undefined,
+      };
+    });
+    res.status(200).json({
+      message: "Courses fetched successfulyy",
+      data: courses,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(error.status || 500).json({
+      message: "Error fetching cources",
+    });
+  }
+});
 export default router;

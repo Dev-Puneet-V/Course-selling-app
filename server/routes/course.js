@@ -5,7 +5,6 @@ import { auth, isAdmin } from "../utils/middleware.js";
 import { upload, uploadToCloudinary } from "../utils/fileUpload.js";
 import Course from "../models/course.js";
 import Content from "../models/content.js";
-import { promisify } from "util";
 const router = express.Router();
 
 router.post("/", auth, isAdmin, upload.single("course"), async (req, res) => {
@@ -215,6 +214,8 @@ router.delete(
     }
   }
 );
-
+// TODO - implement it when user has access to it
 router.get("/:courseId/content", auth, (req, res) => {});
 export default router;
+
+//user -> see course -> click on purchase -> once clicked on purchase -> buy it and save to db -> 
