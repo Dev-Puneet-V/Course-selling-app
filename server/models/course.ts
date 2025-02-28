@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
+import { Icourse } from "../utils/types/course";
 
-const courseSchema = mongoose.Schema(
+const courseSchema = new mongoose.Schema<Icourse>(
   {
     name: {
       type: String,
       required: true,
-      set: (value) => value.toLowerCase(),
+      set: (value: string) => value.toLowerCase(),
     },
     price: {
       type: Number,

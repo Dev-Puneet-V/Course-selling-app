@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-const userSchema = mongoose.Schema({
+import { Iuser } from "../../server/utils/types/user";
+const userSchema = new mongoose.Schema<Iuser>({
   name: {
     type: String,
     required: true,
@@ -35,12 +36,12 @@ userSchema.pre("save", async function (next) {
     const encryptPassword = await bcrypt.hash(this.password, 5);
     this.password = encryptPassword;
     next();
-  } catch (error) {
+  } catch (error: any) {
     next(error);
   }
 });
 
-userSchema.methods.verifyPassword = async function (enteredPassword) {
+userSchema.methods.verifyPassword = async function (enteredPassword: string) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

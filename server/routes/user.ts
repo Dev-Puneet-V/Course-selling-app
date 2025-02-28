@@ -1,15 +1,18 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import { variables } from "../utils/config.js";
 import Course from "../models/course.js";
 import { auth } from "../utils/middleware.js";
+import { Iuser } from "../utils/types/user.js";
+import { AuthenticatedRequest } from "../utils/types/common.js";
+import { Icourse } from "../utils/types/course.js";
 const router = express.Router();
 
-router.post("/signup", async (req, res) => {
+router.post("/signup", async (req: Request, res: Response) => {
   try {
-    const { name, email, password, confirmPassword, role } = req.body;
+    const { name, email, password, role } = req.body;
     const user = z
       .object({
         name: z.string().min(3).max(15),
@@ -41,7 +44,7 @@ router.post("/signup", async (req, res) => {
     res.status(200).json({
       message: "User successfully created",
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error.code === 11000) {
       error.message = "User already exists";
       error.status = 409;
@@ -52,7 +55,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.post("/signin", async (req, res) => {
+router.post("/signin", async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const userObject = z.object({
@@ -69,72 +72,86 @@ router.post("/signin", async (req, res) => {
         ),
     });
     userObject.parse(req.body);
-    const user = await User.findOne({
+    const user: Iuser | null = await User.findOne({
       email: email.toLowerCase(),
     });
     if (!user) {
-      let error = new Error("Password/Email invalid");
+      let error: any = new Error("Password/Email invalid");
       error.status = 401;
       throw error;
     }
-    const isPasswordValid = await user.verifyPassword(password);
+    const isPasswordValid: boolean = await user.verifyPassword(password);
+
     if (!isPasswordValid) {
-      let error = new Error("Password/Email invalid");
+      let error: any = new Error("Password/Email invalid");
       error.status = 401;
       throw error;
     }
-    const token = jwt.sign(
+    const token: string = jwt.sign(
       {
         userId: user._id,
       },
       variables.JWT_TOKEN_SECRET,
       {
-        expiresIn: variables.JWT_EXPIRY,
+        expiresIn: 86400000,
       }
     );
     res.cookie("token", token, {
       // httpOnly: true, // Prevents client-side access via JavaScript
       secure: process.env.NODE_ENV === "production", // Only send cookie over HTTPS in production
-      maxAge: variables.JWT_EXPIRY, // 1 day in milliseconds
+      maxAge: 86400000, // 1 day in milliseconds
       // sameSite: "strict", // Helps prevent CSRF attacks
     });
-    user.password = undefined;
-    user.__v = undefined;
-    user.subscriptions = undefined;
-    res.status(200).json({
-      message: "User successfully logged in",
-      data: user,
-    });
-  } catch (error) {
+    let planeUserObject = user.toObject();
+    if (typeof planeUserObject === 'object' && planeUserObject !== null) {
+      res.status(200).json({
+        message: "User successfully logged in",
+        data: {
+          ...planeUserObject,
+          password: undefined,
+          subscriptions: undefined,
+          __v: undefined,
+        },
+      });
+    } else {
+      res.status(500).json({
+        message: "Error processing user data",
+      });
+    }
+  } catch (error: any) {
     res.status(error.status || 500).json({
       message: error.message || "Internal server error",
     });
   }
 });
-router.get("/:userId/courses", auth, async (req, res) => {
-  try {
-    const { userId } = req.params;
-    let courses = await Course.find({
-      owner: userId,
-    }).lean();
-    courses = courses?.map((course) => {
-      return {
-        ...course,
-        owner: undefined,
-        contents: undefined,
-        subscribers: undefined,
-        __v: undefined,
-      };
-    });
-    res.status(200).json({
-      message: "Courses fetched successfulyy",
-      data: courses,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(error.status || 500).json({
-      message: "Error fetching cources",
-    });
+router.get(
+  "/:userId/courses",
+  auth,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { userId } = req.params;
+      let courses: Icourse[] = await Course.find({
+        owner: userId,
+      }).lean();
+      courses = courses?.map((course: any) => {
+        return {
+          ...course,
+          owner: undefined,
+          contents: undefined,
+          subscribers: undefined,
+          __v: undefined,
+        };
+      });
+      res.status(200).json({
+        message: "Courses fetched successfulyy",
+        data: courses,
+      });
+    } catch (error: any) {
+      console.error(error);
+      res.status(error.status || 500).json({
+        message: "Error fetching cources",
+      });
+    }
   }
-});
+);
 export default router;

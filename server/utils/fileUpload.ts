@@ -1,4 +1,4 @@
-import { v2 as cloudinary, uploader } from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -22,12 +22,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-const uploadToCloudinary = async (filePath) => {
+const uploadToCloudinary: any = async (filePath: string) => {
   try {
     if (!fs.existsSync(filePath)) {
       throw new Error("File not found: " + filePath);
     }
-    console.log(filePath);
     const result = await cloudinary.uploader.upload(filePath, {
       resource_type: "auto",
       chunk_size: 6000000,
@@ -39,7 +38,7 @@ const uploadToCloudinary = async (filePath) => {
   }
 };
 
-const deleteResourceFromClodinary = async (publicId) => {
+const deleteResourceFromClodinary = async (publicId: string) => {
   try {
     await cloudinary.uploader.destroy(publicId);
   } catch (error) {
@@ -48,7 +47,10 @@ const deleteResourceFromClodinary = async (publicId) => {
   }
 };
 
-const overwriteResourceInCloudinary = async (filePath, publicId) => {
+const overwriteResourceInCloudinary = async (
+  filePath: string,
+  publicId: string
+) => {
   try {
     const result = await cloudinary.uploader.upload(filePath, {
       public_id: publicId,

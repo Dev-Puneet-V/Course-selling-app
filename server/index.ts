@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
-import { variables, dbConnect } from "./utils/config.js";
-import routes from "./routes/index.js";
+import { variables, dbConnect } from "./utils/config";
+import routes from "./routes/index";
 const app = express();
 
 app.use(express.json());

@@ -1,7 +1,7 @@
 import express from "express";
-import userRouter from "./user.js";
-import courseRouter from "./course.js";
-import paymentRouter from "./payment.js";
+import userRouter from "./user";
+import courseRouter from "./course";
+import paymentRouter from "./payment";
 const router = express.Router();
 
 router.use("/user", userRouter);

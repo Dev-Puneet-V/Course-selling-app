@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import { ICourseContent } from "../utils/types/courseContent";
 
-const userCourseSchema = mongoose.Schema(
+const userCourseSchema = new mongoose.Schema<ICourseContent>(
   {
     subscriber: {
       ref: "User",
@@ -24,7 +25,7 @@ const userCourseSchema = mongoose.Schema(
     ],
   },
   {
-    timestamp: true,
+    timestamps: true,
   }
 );
 
