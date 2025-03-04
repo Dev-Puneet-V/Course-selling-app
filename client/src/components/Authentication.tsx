@@ -62,6 +62,7 @@ const Authentication: React.FC = () => {
         `http://localhost:3000/api/v1/user/${isLogin ? "signin" : "signup"}`,
         values,
         {
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
           },
