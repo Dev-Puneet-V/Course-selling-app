@@ -8,8 +8,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 dbConnect();
 app.use(cors());
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
 app.use("/api/v1", routes);
-
 app.listen(variables.PORT, () => {
   console.log("Server is running on PORT", variables.PORT);
 });

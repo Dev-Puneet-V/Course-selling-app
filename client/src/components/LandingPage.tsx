@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 const LandingPage: React.FC = () => {
   return (
-    <div className="bg-[#E6D6CE] h-auto pt-2 px-8 max-sm:px-0">
+    <div className="bg-[#E6D6CE] h-auto pt-2 px-8 max-sm:px-0 pb-4">
       <div className="p-4 flex gap-8 items-center max-sm:flex-col">
         <section className="w-[50%] font-irish-grover max-sm:w-[70%]">
           <p className="text-[#383535] text-8xl max-md:text-6xl max-sm:text-5xl">
@@ -58,7 +58,7 @@ const LandingPage: React.FC = () => {
           <p>Want to share knowledge to the</p>
           <p>world & earn?</p>
         </div>
-        <button className="bg-[#6D6464] px-8 w-[150px] rounded-4xl py-3 font-bold cursor-pointer text-white shadow hover:opacity-75 mt-4 ">
+        <button className="bg-[#6D6464] px-8 w-[150px] rounded-4xl py-3 font-bold cursor-pointer text-white shadow hover:opacity-75 mt-4">
           Join Now
         </button>
       </div>
