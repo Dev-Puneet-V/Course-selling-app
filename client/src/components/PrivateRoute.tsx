@@ -14,9 +14,7 @@ const PrivateRoute: React.FC = () => {
   if (!authenticationData?.isAuthenticated) {
     return <Navigate to="/" replace />;
   }
-  return (
-      <Outlet />
-  );
+  return <Outlet />;
 };
 
 export default PrivateRoute;

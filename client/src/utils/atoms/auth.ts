@@ -6,8 +6,8 @@ interface AuthenticationFormState {
 
 interface AuthState {
   isAuthenticated: boolean;
-    authenticationFormState: AuthenticationFormState;
-    user: any | null;
+  authenticationFormState: AuthenticationFormState;
+  user: any | null;
 }
 
 const authState = atom<AuthState>({
@@ -23,3 +23,5 @@ const authState = atom<AuthState>({
 });
 
 export default authState;
+
+export type { AuthState };

@@ -20,6 +20,23 @@ const config_js_1 = require("../utils/config.js");
 const course_js_1 = __importDefault(require("../models/course.js"));
 const middleware_js_1 = require("../utils/middleware.js");
 const router = express_1.default.Router();
+router.get("/me", middleware_js_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = req.user;
+        let planeUserObject = user === null || user === void 0 ? void 0 : user.toObject();
+        if (typeof planeUserObject === "object" && planeUserObject !== null) {
+            res.status(200).json({
+                message: "User successfully logged in",
+                data: Object.assign(Object.assign({}, planeUserObject), { password: undefined, subscriptions: undefined, __v: undefined }),
+            });
+        }
+    }
+    catch (error) {
+        res.status(404).json({
+            message: "User not found",
+        });
+    }
+}));
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password, role } = req.body;
@@ -102,7 +119,7 @@ router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function*
             // sameSite: "strict", // Helps prevent CSRF attacks
         });
         let planeUserObject = user.toObject();
-        if (typeof planeUserObject === 'object' && planeUserObject !== null) {
+        if (typeof planeUserObject === "object" && planeUserObject !== null) {
             res.status(200).json({
                 message: "User successfully logged in",
                 data: Object.assign(Object.assign({}, planeUserObject), { password: undefined, subscriptions: undefined, __v: undefined }),

@@ -10,6 +10,28 @@ import { AuthenticatedRequest } from "../utils/types/common.js";
 import { Icourse } from "../utils/types/course.js";
 const router = express.Router();
 
+router.get("/me", auth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = req.user;
+    let planeUserObject = user?.toObject();
+    if (typeof planeUserObject === "object" && planeUserObject !== null) {
+      res.status(200).json({
+        message: "User successfully logged in",
+        data: {
+          ...planeUserObject,
+          password: undefined,
+          subscriptions: undefined,
+          __v: undefined,
+        },
+      });
+    }
+  } catch (error: any) {
+    res.status(404).json({
+      message: "User not found",
+    });
+  }
+});
+
 router.post("/signup", async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
@@ -103,7 +125,7 @@ router.post("/signin", async (req: Request, res: Response) => {
       // sameSite: "strict", // Helps prevent CSRF attacks
     });
     let planeUserObject = user.toObject();
-    if (typeof planeUserObject === 'object' && planeUserObject !== null) {
+    if (typeof planeUserObject === "object" && planeUserObject !== null) {
       res.status(200).json({
         message: "User successfully logged in",
         data: {

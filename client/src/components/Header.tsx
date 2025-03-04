@@ -1,15 +1,39 @@
 import { useRecoilState } from "recoil";
-import authState from "../utils/atoms/auth";
+import Cookie from "js-cookie";
+import axios from "axios";
+import authState, { AuthState } from "../utils/atoms/auth";
 import Modal from "./Modal";
 import Authentication from "./Authentication";
 import { useEffect } from "react";
 
 const Header: React.FC = () => {
   const [authenticationData, setAuthenticationData] = useRecoilState(authState);
+  const getLoggedInUser = async () => {
+    const token = Cookie.get("token");
+    if (token) {
+      const response = await axios.get("http://localhost:3000/api/v1/user/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = response.data;
+      const status = response.status;
+      if (status === 200) {
+        setAuthenticationData((prev: AuthState) => ({
+          ...prev,
+          isAuthenticated: true,
+          user: data?.data,
+        }));
+      }
+    }
+  };
+
+  useEffect(() => {
+    getLoggedInUser();
+  }, []);
 
   const handleAuthentication = (state: string) => {
     if (!authenticationData?.isAuthenticated) {
-      console.log("state", state);
       setAuthenticationData((prev) => ({
         ...prev,
         authenticationFormState: {
@@ -22,8 +46,9 @@ const Header: React.FC = () => {
     setAuthenticationData((prev) => ({
       ...prev,
       isAuthenticated: !prev.isAuthenticated,
-      user: null
+      user: null,
     }));
+    Cookie.remove("token");
   };
 
   return (
