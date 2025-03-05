@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { useRecoilState } from "recoil";
 import authState from "../utils/atoms/auth";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
 
@@ -35,6 +36,7 @@ interface MyFormValues {
 
 const Authentication: React.FC = () => {
   const [authenticationData, setAuthenticationData] = useRecoilState(authState);
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState<boolean>(
     authenticationData?.authenticationFormState.state === "signin"
   );
@@ -83,6 +85,7 @@ const Authentication: React.FC = () => {
             },
             user: data?.data,
           }));
+          navigate("/home");
         }
       }
     } catch (error) {

@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom"; // Fixed import
 import Layout from "./components/Layout";
 import PrivateRoute from "./components/PrivateRoute";
 import Home from "./components/Home";
+import AdminDashboard from "./components/AdminDashboard";
 
 function App() {
   return (
@@ -15,7 +16,7 @@ function App() {
 
             {/* Private Routes */}
             <Route element={<PrivateRoute />}>
-              <Route path="/home" element={<Home />} />
+              <Route path="/home" element={<AdminDashboard />} />
             </Route>
           </Route>
         </Routes>

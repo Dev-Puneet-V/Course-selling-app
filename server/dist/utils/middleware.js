@@ -30,14 +30,18 @@ const isAdmin = (req, res, next) => {
 exports.isAdmin = isAdmin;
 const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const authToken = req.headers.authorization;
+        let authToken = req.headers.authorization || req.cookies.token;
+        console.log(authToken);
         if (!authToken) {
             res.status(401).json({
                 message: "User is unauthorized",
             });
         }
         else {
-            const decoded = jsonwebtoken_1.default.verify(authToken.split(" ")[1], config_1.variables.JWT_TOKEN_SECRET);
+            if (authToken.split(" ")[0] === "Bearer") {
+                authToken = authToken.split(" ")[1];
+            }
+            const decoded = jsonwebtoken_1.default.verify(authToken, config_1.variables.JWT_TOKEN_SECRET);
             const user = yield user_1.default.findById(decoded.userId).select("-password");
             if (!user) {
                 const error = new Error("Unauthorized");

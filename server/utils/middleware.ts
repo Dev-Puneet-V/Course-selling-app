@@ -28,14 +28,18 @@ export const auth = async (
   next: NextFunction
 ) => {
   try {
-    const authToken = req.headers.authorization;
+    let authToken = req.headers.authorization || req.cookies.token;
+    console.log(authToken);
     if (!authToken) {
       res.status(401).json({
         message: "User is unauthorized",
       });
     } else {
+      if (authToken.split(" ")[0] === "Bearer") {
+        authToken = authToken.split(" ")[1]
+      }
       const decoded: IJwtDecoded = jwt.verify(
-        authToken.split(" ")[1],
+        authToken,
         variables.JWT_TOKEN_SECRET
       ) as IJwtDecoded;
       const user = await User.findById(decoded.userId).select("-password");
