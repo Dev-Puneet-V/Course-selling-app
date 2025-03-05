@@ -137,6 +137,24 @@ router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
     }
 }));
+router.get("/cources", middleware_js_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = req.user;
+        const cources = yield course_js_1.default.find({
+            owner: user === null || user === void 0 ? void 0 : user._id,
+        });
+        res.status(200).json({
+            message: "Cources",
+            data: cources,
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({
+            message: "Error fetching cources",
+        });
+    }
+}));
 router.get("/:userId/courses", middleware_js_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;

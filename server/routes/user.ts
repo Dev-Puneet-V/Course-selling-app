@@ -146,6 +146,29 @@ router.post("/signin", async (req: Request, res: Response) => {
     });
   }
 });
+
+router.get(
+  "/cources",
+  auth,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const user = req.user;
+      const cources = await Course.find({
+        owner: user?._id,
+      });
+      res.status(200).json({
+        message: "Cources",
+        data: cources,
+      });
+    } catch (error: any) {
+      console.error(error);
+      res.status(error.status || 500).json({
+        message: "Error fetching cources",
+      });
+    }
+  }
+);
+
 router.get(
   "/:userId/courses",
   auth,
@@ -176,4 +199,5 @@ router.get(
     }
   }
 );
+
 export default router;

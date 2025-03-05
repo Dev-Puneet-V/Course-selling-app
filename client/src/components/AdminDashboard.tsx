@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import Modal from "./Modal";
 import CreateCourse from "./CreateCourse";
+import AdminCources from "./AdminCources";
 const AdminDashboard: React.FC = () => {
   const [isCreateCourseModalVisiblity, setCreateCourseModalVibility] =
     useState<boolean>(false);
   const handleModalVisibility = () => {
     setCreateCourseModalVibility(!isCreateCourseModalVisiblity);
-    };
+  };
+
   return (
     <div className="flex relative">
       <div className="flex flex-col gap-2 bg-[#423737] text-white w-[200px] h-[90vh]">
@@ -15,6 +17,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
       <div>
+        <AdminCources />
         <button
           onClick={handleModalVisibility}
           className="bg-[#423737] w-45 max-sm:w-24 rounded-4xl py-2 font-bold cursor-pointer text-white shadow hover:opacity-75 absolute bottom-2 right-2"
@@ -22,8 +25,9 @@ const AdminDashboard: React.FC = () => {
           Create New course +
         </button>
       </div>
+
       <Modal isOpen={isCreateCourseModalVisiblity}>
-        <CreateCourse handleCloseButton={handleModalVisibility}/>
+        <CreateCourse handleCloseButton={handleModalVisibility} />
       </Modal>
     </div>
   );
