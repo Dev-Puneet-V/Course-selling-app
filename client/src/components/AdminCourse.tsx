@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { UsersIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
 
 type Course = {
+  _id: string;
   image: {
     url: string;
   };
@@ -12,7 +14,12 @@ type Course = {
 };
 
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
-  return (
+    const navigate = useNavigate();
+    const handleClick = () => {
+        navigate("/course/" + course?._id)
+    }
+
+    return (
     <div className="max-w-md mx-auto shadow-lg rounded-2xl overflow-hidden bg-white border border-gray-200">
       <img
         src={course.image.url}
@@ -38,7 +45,7 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
             </span>
           </div>
         </div>
-        <button className="cursor-pointer w-full bg-[#423737] hover:opacity-50 hover:text-white text-white py-2 rounded-lg font-medium">
+        <button className="cursor-pointer w-full bg-[#423737] hover:opacity-50 hover:text-white text-white py-2 rounded-lg font-medium" onClick={handleClick}>
           Detailed view
         </button>
       </div>

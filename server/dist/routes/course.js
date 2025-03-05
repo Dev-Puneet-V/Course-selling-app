@@ -20,6 +20,26 @@ const fileUpload_1 = require("../utils/fileUpload");
 const course_1 = __importDefault(require("../models/course"));
 const content_1 = __importDefault(require("../models/content"));
 const router = express_1.default.Router();
+router.get("/:id", middleware_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const user = req.user;
+        const course = yield course_1.default.findOne({
+            _id: id,
+            owner: user === null || user === void 0 ? void 0 : user._id,
+        }).populate("contents");
+        res.status(200).json({
+            message: "Course found successfully",
+            data: course,
+        });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({
+            message: "Course not found",
+        });
+    }
+}));
 router.post("/", middleware_1.auth, middleware_1.isAdmin, fileUpload_1.upload.single("course"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {

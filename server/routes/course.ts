@@ -8,6 +8,26 @@ import Content from "../models/content";
 import { AuthenticatedRequest } from "../utils/types/common";
 const router = express.Router();
 
+router.get("/:id", auth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = req.user;
+    const course = await Course.findOne({
+      _id: id,
+      owner: user?._id,
+    }).populate("contents");
+    res.status(200).json({
+      message: "Course found successfully",
+      data: course,
+    });
+  } catch (error: any) {
+    console.error(error);
+    res.status(error.status || 500).json({
+      message: "Course not found",
+    });
+  }
+});
+
 router.post(
   "/",
   auth,
@@ -105,7 +125,6 @@ router.post(
     try {
       const { courseId } = req.params;
       const { contentType, topic } = req.body;
-      console.log(req.body);
       const contentObject = z.object({
         contentType: z.enum(["video", "pdf"]),
         topic: z.string().min(10),
