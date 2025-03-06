@@ -8,6 +8,20 @@ import Content from "../models/content";
 import { AuthenticatedRequest } from "../utils/types/common";
 const router = express.Router();
 
+router.get("/all", auth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const cources = await Course.find().populate("contents");
+    res.status(200).json({
+      message: "Cources fetched successfully",
+      data: cources,
+    });
+  } catch (error: any) {
+    res.status(error.status || 500).json({
+      message: "Error fetching cources",
+    });
+  }
+});
+
 router.get("/:id", auth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;

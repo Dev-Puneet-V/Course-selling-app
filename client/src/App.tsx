@@ -6,6 +6,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import Home from "./components/Home";
 import AdminDashboard from "./components/AdminDashboard";
 import CourseDetailedView from "./components/CourseDetailedView";
+import UserHome from "./components/UserDashboard";
 
 function App() {
   return (
@@ -17,8 +18,9 @@ function App() {
 
             {/* Private Routes */}
             <Route element={<PrivateRoute />}>
-              <Route path="/home" element={<AdminDashboard />} />
-              <Route path="/course/:id" element={<CourseDetailedView />} />
+              {/* <Route path="/home" element={<AdminDashboard />} /> */}
+              {/* <Route path="/course/:id" element={<CourseDetailedView />} /> */}
+              <Route path="/home" element={<UserHome />} />
             </Route>
           </Route>
         </Routes>
