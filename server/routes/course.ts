@@ -214,7 +214,7 @@ router.put(
   }
 );
 
-router.get(
+router.delete(
   "/:courseId/content/:contentId",
   auth,
   isAdmin,

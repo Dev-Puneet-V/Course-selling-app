@@ -37,7 +37,7 @@ const CourseDetailedView: React.FC = () => {
 
   const handleDeleteContent = async () => {
     try {
-      const response = await axios.get(
+      const response = await axios.delete(
         `http://localhost:3000/api/v1/course/${id}/content/${currentContentDeletionId}`,
         { withCredentials: true }
       );
@@ -112,7 +112,6 @@ const CourseDetailedView: React.FC = () => {
 
                 setConfirmModalVisibility(true);
                 setCurrentContentDeleteId(content._id);
-                // handleDeleteContent(content._id);
               }}
             />
           </div>

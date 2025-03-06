@@ -13,6 +13,7 @@ app.use(
     origin: "http://localhost:5173",
     // credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
   })
 );
 app.use((req, res, next) => {
