@@ -44,6 +44,7 @@ const uploadToCloudinary = (filePath) => __awaiter(void 0, void 0, void 0, funct
         const result = yield cloudinary_1.v2.uploader.upload(filePath, {
             resource_type: "auto",
             chunk_size: 6000000,
+            access_mode: "public",
         });
         return result;
     }

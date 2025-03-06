@@ -30,6 +30,7 @@ const uploadToCloudinary: any = async (filePath: string) => {
     const result = await cloudinary.uploader.upload(filePath, {
       resource_type: "auto",
       chunk_size: 6000000,
+      access_mode: "public",
     });
     return result;
   } catch (error) {

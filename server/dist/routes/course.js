@@ -117,7 +117,6 @@ router.post("/:courseId/content", middleware_1.auth, middleware_1.isAdmin, fileU
     try {
         const { courseId } = req.params;
         const { contentType, topic } = req.body;
-        console.log(req.body);
         const contentObject = zod_1.z.object({
             contentType: zod_1.z.enum(["video", "pdf"]),
             topic: zod_1.z.string().min(10),

@@ -56,6 +56,7 @@ const ContentForm: React.FC<ContentFormType> = (props) => {
     const status = response.status;
     if (status === 200) {
       alert("Data successfully added : " + data);
+      handleCloseButton();
     }
     console.log("Form Submitted", formData);
   };

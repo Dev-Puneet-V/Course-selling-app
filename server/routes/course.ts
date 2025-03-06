@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Response } from "express";
 import fs from "fs";
 import { z } from "zod";
 import { auth, isAdmin } from "../utils/middleware";
