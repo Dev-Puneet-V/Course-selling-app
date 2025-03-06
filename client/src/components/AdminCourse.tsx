@@ -45,13 +45,13 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
     }
   };
   return (
-    <div className="max-w-md mx-auto shadow-lg rounded-2xl overflow-hidden bg-white border border-gray-200">
+    <div className="max-w-sm mx-auto shadow-lg rounded-2xl overflow-hidden bg-white border border-gray-200">
       <img
         src={course.image.url}
         alt={course.name}
-        width={400}
+        width={300}
         height={250}
-        className="w-full h-48 object-cover"
+        className="w-full h-42 object-cover"
       />
       <div className="p-4">
         <div className="flex justify-between">
