@@ -195,7 +195,7 @@ router.put("/:courseId", middleware_1.auth, middleware_1.isAdmin, (req, res) => 
         });
     }
 }));
-router.delete("/:courseId/content/:contentId", middleware_1.auth, middleware_1.isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/:courseId/content/:contentId", middleware_1.auth, middleware_1.isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
         const { courseId, contentId } = req.params;
