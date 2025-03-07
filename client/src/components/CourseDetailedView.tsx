@@ -5,9 +5,12 @@ import moment from "moment";
 import ContentForm from "./ContentForm";
 import Modal from "./Modal";
 import { TrashIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { useRecoilValue } from "recoil";
+import authState from "../utils/atoms/auth";
 
 const CourseDetailedView: React.FC = () => {
   const { id } = useParams();
+  const authenticationData = useRecoilValue(authState);
   const [data, setData] = useState<any>({});
   const [isFormVisible, setFormVisibility] = useState(false);
   const [currentContent, setCurrentContent] = useState<null | number>(null);
@@ -16,6 +19,9 @@ const CourseDetailedView: React.FC = () => {
   const [currentContentDeletionId, setCurrentContentDeleteId] = useState<
     null | string
   >(null);
+  useEffect(() => {
+    console.log(authenticationData);
+  }, []);
   const fetchCourse = async () => {
     try {
       const response = await axios.get(
@@ -105,56 +111,71 @@ const CourseDetailedView: React.FC = () => {
                 {content.contentType}
               </span>
             </div>
-            <TrashIcon
-              className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
+            {authenticationData?.user?.role === "admin" &&
+              data?.owner === authenticationData?.user?._id && (
+                <TrashIcon
+                  className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
 
-                setConfirmModalVisibility(true);
-                setCurrentContentDeleteId(content._id);
-              }}
-            />
+                    setConfirmModalVisibility(true);
+                    setCurrentContentDeleteId(content._id);
+                  }}
+                />
+              )}
           </div>
         ))}
       </div>
 
-      <button
-        className="absolute bottom-6 right-8 flex items-center gap-2 px-6 py-3 text-white bg-neutral-800 hover:bg-neutral-700 rounded-full shadow-md transition cursor-pointer"
-        onClick={handleButtonClick}
-      >
-        <PlusIcon className="w-6 h-6" />
-        Add Content
-      </button>
-      <div className="text-black">
-        <Modal isOpen={isFormVisible}>
-          <ContentForm handleCloseButton={handleButtonClick} id={id + ""} />
-        </Modal>
-      </div>
-      <Modal isOpen={isConfirmModalVisible}>
-        <div className="rounded p-2 text-black">
-          <p className="font-bold text-lg pb-4">
-            You are proceding to delete a content, Press{" "}
-            <strong>confirm</strong> to agree
-          </p>
-          <div className="flex gap-4">
+      {authenticationData?.user?.role === "admin" &&
+        data?.owner === authenticationData?.user?._id && (
+          <>
+            {" "}
             <button
-              onClick={handleDeleteContent}
-              className="hover:opacity-50 cursor-pointer bg-red-500 text-white rounded font-bold w-[100px] p-2"
+              className="absolute bottom-6 right-8 flex items-center gap-2 px-6 py-3 text-white bg-neutral-800 hover:bg-neutral-700 rounded-full shadow-md transition cursor-pointer"
+              onClick={handleButtonClick}
             >
-              Confirm
+              <PlusIcon className="w-6 h-6" />
+              Add Content
             </button>
-            <button
-              onClick={() => {
-                setCurrentContentDeleteId(null);
-                setConfirmModalVisibility(false);
-              }}
-              className="hover:opacity-50 cursor-pointer border border-[black] rounded font-bold w-[100px] p-2"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </Modal>
+            <div className="text-black">
+              <Modal isOpen={isFormVisible}>
+                <ContentForm
+                  handleCloseButton={handleButtonClick}
+                  id={id + ""}
+                />
+              </Modal>
+            </div>
+          </>
+        )}
+      {authenticationData?.user?.role === "admin" &&
+        data?.owner === authenticationData?.user?._id && (
+          <Modal isOpen={isConfirmModalVisible}>
+            <div className="rounded p-2 text-black">
+              <p className="font-bold text-lg pb-4">
+                You are proceding to delete a content, Press{" "}
+                <strong>confirm</strong> to agree
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={handleDeleteContent}
+                  className="hover:opacity-50 cursor-pointer bg-red-500 text-white rounded font-bold w-[100px] p-2"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => {
+                    setCurrentContentDeleteId(null);
+                    setConfirmModalVisibility(false);
+                  }}
+                  className="hover:opacity-50 cursor-pointer border border-[black] rounded font-bold w-[100px] p-2"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}
     </div>
   );
 };

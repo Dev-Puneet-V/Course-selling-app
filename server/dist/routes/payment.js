@@ -76,7 +76,7 @@ router.post("/request/:courseId", middleware_1.auth, (req, res) => __awaiter(voi
     }
 }));
 router.post("/confirm", middleware_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
         const { orderId, paymentId, signature } = req.body;
         if (!orderId || !paymentId || !signature) {
@@ -106,6 +106,9 @@ router.post("/confirm", middleware_1.auth, (req, res) => __awaiter(void 0, void 
                 subscriber: order.user._id,
                 course: order.course,
             });
+            yield course_1.default.findOneAndUpdate({
+                _id: order === null || order === void 0 ? void 0 : order.course,
+            }, { $push: { subscribers: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id } });
             res.json({
                 success: true,
                 message: "Payment verified successfully",

@@ -22,9 +22,9 @@ type Course = {
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
   const [isConfirmModalVisible, setConfirmModalVisibility] =
     useState<boolean>(false);
-  const navigate = useNavigate();
+    const navigate = useNavigate();
   const handleClick = () => {
-    navigate("/course/" + course?._id);
+    navigate("/course/watch/" + course?._id);
   };
   const handleDeleteCourse = async () => {
     try {

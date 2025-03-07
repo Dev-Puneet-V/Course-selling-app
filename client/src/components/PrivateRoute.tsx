@@ -8,7 +8,7 @@ const PrivateRoute: React.FC = () => {
   const authenticationData = useRecoilValue(authState);
 
   if (location.pathname === "/" && authenticationData?.isAuthenticated) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to={"/home"} replace />;
   }
 
   if (!authenticationData?.isAuthenticated) {

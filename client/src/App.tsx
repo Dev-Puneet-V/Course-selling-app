@@ -7,6 +7,8 @@ import Home from "./components/Home";
 import AdminDashboard from "./components/AdminDashboard";
 import CourseDetailedView from "./components/CourseDetailedView";
 import UserHome from "./components/UserDashboard";
+import UserDashboard from "./components/UserDashboard";
+import UserCources from "./components/UserCources";
 
 function App() {
   return (
@@ -19,8 +21,9 @@ function App() {
             {/* Private Routes */}
             <Route element={<PrivateRoute />}>
               {/* <Route path="/home" element={<AdminDashboard />} /> */}
-              {/* <Route path="/course/:id" element={<CourseDetailedView />} /> */}
-              <Route path="/home" element={<UserHome />} />
+              <Route path="/course/watch/:id" element={<CourseDetailedView />} />
+              <Route path="/home" element={<UserDashboard />} />
+              <Route path="/course/:type" element={<UserDashboard />} />
             </Route>
           </Route>
         </Routes>

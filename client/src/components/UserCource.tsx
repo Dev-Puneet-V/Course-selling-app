@@ -4,8 +4,8 @@ import {
   CurrencyDollarIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 type Course = {
   _id: string;
@@ -19,7 +19,9 @@ type Course = {
 };
 
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
-  const handlePayment = async (courseId: string) => {
+    const { type } = useParams();
+    const navigate = useNavigate();
+    const handlePayment = async (courseId: string) => {
     try {
       const { data: orderData } = await axios.post(
         "http://localhost:3000/api/v1/payment/request/" + courseId,
@@ -110,9 +112,15 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
         </div>
         <button
           className="cursor-pointer w-full bg-[#423737] hover:opacity-50 hover:text-white text-white py-2 rounded-lg font-medium"
-          onClick={() => handlePayment(course._id)}
+                  onClick={() => {
+                      if (type === "explore") {
+                          handlePayment(course._id)
+                      } else {
+                            navigate("/course/watch/" + course?._id);
+                      }
+                  }}
         >
-          Purchase
+         { type === "explore" ? "Purchase" : "Detailed View"}
         </button>
       </div>
     </div>

@@ -104,6 +104,12 @@ router.post(
           subscriber: order.user._id,
           course: order.course,
         });
+        await Course.findOneAndUpdate(
+          {
+            _id: order?.course,
+          },
+          { $push: { subscribers: req.user?._id } }
+        );
         res.json({
           success: true,
           message: "Payment verified successfully",

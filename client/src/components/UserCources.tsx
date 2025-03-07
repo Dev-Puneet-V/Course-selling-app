@@ -1,13 +1,17 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import AdminCourse from "./AdminCourse";
 import UserCourse from "./UserCource";
+import { useParams } from "react-router-dom";
 
 const UserCources: React.FC = () => {
   const [data, setData] = useState([]);
+
+  const { type } = useParams();
   const fetchData = async () => {
     const response = await axios.get(
-      `http://localhost:3000/api/v1/course/unpurchased`,
+      `http://localhost:3000/api/v1/course/all?type=${
+        type === "explore" ? "unpurchased" : "me"
+      }`,
       {
         withCredentials: true,
         headers: {
@@ -24,7 +28,7 @@ const UserCources: React.FC = () => {
   };
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [type]);
   return (
     <div className="flex flex-wrap gap-4 m-8">
       {data?.map((course: any) => {

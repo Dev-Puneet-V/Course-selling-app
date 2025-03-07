@@ -6,28 +6,26 @@ import { upload, uploadToCloudinary } from "../utils/fileUpload";
 import Course from "../models/course";
 import Content from "../models/content";
 import { AuthenticatedRequest } from "../utils/types/common";
+import { Icourse } from "../utils/types/course";
 const router = express.Router();
 
-router.get(
-  "/unpurchased",
-  auth,
-  async (req: AuthenticatedRequest, res: Response) => {
-    try {
-      const user = req.user;
-      const cources = await Course.find({ subscribers: { $ne: user?._id } }).populate(
-        "contents"
-      );
-      res.status(200).json({
-        message: "Cources fetched successfully",
-        data: cources,
-      });
-    } catch (error: any) {
-      res.status(error.status || 500).json({
-        message: "Error fetching cources",
-      });
-    }
+router.get("/all", auth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { type = "unpurchased" } = req.query;
+    const user = req.user;
+    let cources = await Course.find({
+      subscribers: type === "unpurchased" ? { $ne: user?._id } : user?._id,
+    }).populate("contents");
+    res.status(200).json({
+      message: "Cources fetched successfully",
+      data: cources,
+    });
+  } catch (error: any) {
+    res.status(error.status || 500).json({
+      message: "Error fetching cources",
+    });
   }
-);
+});
 
 router.get("/:id", auth, async (req: AuthenticatedRequest, res: Response) => {
   try {
