@@ -18,8 +18,8 @@ const course_1 = __importDefault(require("../models/course"));
 const order_1 = __importDefault(require("../models/order"));
 const payment_1 = __importDefault(require("../utils/payment"));
 const middleware_1 = require("../utils/middleware");
-const config_1 = require("../utils/config");
 const courseContent_1 = __importDefault(require("../models/courseContent"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const router = express_1.default.Router();
 //create order
 router.post("/request/:courseId", middleware_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -42,17 +42,27 @@ router.post("/request/:courseId", middleware_1.auth, (req, res) => __awaiter(voi
             course: course._id,
         });
         if (orderExist) {
-            const error = new Error("Order already exist");
-            error.status = 409;
-            throw error;
+            if ((orderExist === null || orderExist === void 0 ? void 0 : orderExist.status) === "paid") {
+                const error = new Error("Order already exist");
+                error.status = 409;
+                throw error;
+            }
+            else {
+                orderExist.status = "pending";
+                orderExist.razorpayOrderId = orderRequest.id;
+                yield orderExist.save();
+                console.log(orderExist);
+            }
         }
-        yield order_1.default.create({
-            user: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id,
-            seller: course.owner,
-            amount: course.price,
-            course: course._id,
-            razorpayOrderId: orderRequest.id,
-        });
+        else {
+            yield order_1.default.create({
+                user: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id,
+                seller: course.owner,
+                amount: course.price,
+                course: course._id,
+                razorpayOrderId: orderRequest.id,
+            });
+        }
         res.status(200).json({
             message: "Order request successfully created",
             data: orderRequest,
@@ -76,7 +86,7 @@ router.post("/confirm", middleware_1.auth, (req, res) => __awaiter(void 0, void 
         }
         const order = yield order_1.default.findOne({
             razorpayOrderId: orderId,
-            user: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
+            user: new mongoose_1.default.Types.ObjectId((_a = req.user) === null || _a === void 0 ? void 0 : _a._id),
         });
         if (!order) {
             const error = new Error("Order not found");
@@ -84,7 +94,9 @@ router.post("/confirm", middleware_1.auth, (req, res) => __awaiter(void 0, void 
             throw error;
         }
         const generatedSignature = crypto_1.default
-            .createHmac("sha256", config_1.variables.RAZORPAY_KEY_SECRET || "to6zeo3KtATuNruXklQ1uuRP")
+            .createHmac("sha256", "to6zeo3KtATuNruXklQ1uuRP"
+        // variables.RAZORPAY_KEY_SECRET || "to6zeo3KtATuNruXklQ1uuRP"
+        )
             .update(orderId + "|" + paymentId)
             .digest("hex");
         if (generatedSignature === signature) {

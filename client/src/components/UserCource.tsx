@@ -5,6 +5,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 type Course = {
   _id: string;
@@ -18,8 +19,65 @@ type Course = {
 };
 
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
-  const navigate = useNavigate();
-  const handlePurchase = () => {};
+  const handlePayment = async (courseId: string) => {
+    try {
+      const { data: orderData } = await axios.post(
+        "http://localhost:3000/api/v1/payment/request/" + courseId,
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!orderData?.data) throw new Error("Order creation failed");
+
+      const options = {
+        key: "rzp_test_r9x0083Lr1W1nI",
+        amount: orderData.data.amount,
+        currency: "INR",
+        name: "Your Website",
+        description: "Course Purchase",
+        order_id: orderData.data.id,
+        handler: async (paymentData: any) => {
+          try {
+            const { data: verifyData } = await axios.post(
+              "http://localhost:3000/api/v1/payment/confirm",
+              {
+                orderId: paymentData.razorpay_order_id,
+                paymentId: paymentData.razorpay_payment_id,
+                signature: paymentData.razorpay_signature,
+              },
+              {
+                withCredentials: true,
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+
+            if (verifyData.success) {
+              alert("Payment Successful!");
+            } else {
+              alert("Payment Failed! Try again.");
+            }
+          } catch (error) {
+            console.error("Payment verification failed:", error);
+            alert("Payment verification failed. Try again.");
+          }
+        },
+        theme: { color: "#3399cc" },
+      };
+
+      const razorpayInstance = new (window as any).Razorpay(options);
+      razorpayInstance.open();
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
   return (
     <div className="max-w-sm mx-auto shadow-lg rounded-2xl overflow-hidden bg-white border border-gray-200">
       <img
@@ -52,7 +110,7 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
         </div>
         <button
           className="cursor-pointer w-full bg-[#423737] hover:opacity-50 hover:text-white text-white py-2 rounded-lg font-medium"
-          onClick={handlePurchase}
+          onClick={() => handlePayment(course._id)}
         >
           Purchase
         </button>

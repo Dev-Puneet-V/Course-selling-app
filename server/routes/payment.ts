@@ -8,6 +8,8 @@ import { auth } from "../utils/middleware";
 import { variables } from "../utils/config";
 import courseContent from "../models/courseContent";
 import { AuthenticatedRequest } from "../utils/types/common";
+import order from "../models/order";
+import mongoose from "mongoose";
 const router = express.Router();
 
 //create order
@@ -33,17 +35,25 @@ router.post(
         course: course._id,
       });
       if (orderExist) {
-        const error: any = new Error("Order already exist");
-        error.status = 409;
-        throw error;
+        if (orderExist?.status === "paid") {
+          const error: any = new Error("Order already exist");
+          error.status = 409;
+          throw error;
+        } else {
+          orderExist.status = "pending";
+          orderExist.razorpayOrderId = orderRequest.id;
+          await orderExist.save();
+          console.log(orderExist);
+        }
+      } else {
+        await Order.create({
+          user: req.user?._id,
+          seller: course.owner,
+          amount: course.price,
+          course: course._id,
+          razorpayOrderId: orderRequest.id,
+        });
       }
-      await Order.create({
-        user: req.user?._id,
-        seller: course.owner,
-        amount: course.price,
-        course: course._id,
-        razorpayOrderId: orderRequest.id,
-      });
       res.status(200).json({
         message: "Order request successfully created",
         data: orderRequest,
@@ -72,7 +82,7 @@ router.post(
       }
       const order = await Order.findOne({
         razorpayOrderId: orderId,
-        user: req.user?._id,
+        user: new mongoose.Types.ObjectId(req.user?._id),
       });
       if (!order) {
         const error: any = new Error("Order not found");
@@ -82,7 +92,8 @@ router.post(
       const generatedSignature = crypto
         .createHmac(
           "sha256",
-          variables.RAZORPAY_KEY_SECRET || "to6zeo3KtATuNruXklQ1uuRP"
+          "to6zeo3KtATuNruXklQ1uuRP"
+          // variables.RAZORPAY_KEY_SECRET || "to6zeo3KtATuNruXklQ1uuRP"
         )
         .update(orderId + "|" + paymentId)
         .digest("hex");

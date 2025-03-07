@@ -7,7 +7,7 @@ const UserCources: React.FC = () => {
   const [data, setData] = useState([]);
   const fetchData = async () => {
     const response = await axios.get(
-      `http://localhost:3000/api/v1/course/all`,
+      `http://localhost:3000/api/v1/course/unpurchased`,
       {
         withCredentials: true,
         headers: {

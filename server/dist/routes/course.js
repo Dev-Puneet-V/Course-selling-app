@@ -20,9 +20,10 @@ const fileUpload_1 = require("../utils/fileUpload");
 const course_1 = __importDefault(require("../models/course"));
 const content_1 = __importDefault(require("../models/content"));
 const router = express_1.default.Router();
-router.get("/all", middleware_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/unpurchased", middleware_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const cources = yield course_1.default.find().populate("contents");
+        const user = req.user;
+        const cources = yield course_1.default.find({ subscribers: { $ne: user === null || user === void 0 ? void 0 : user._id } }).populate("contents");
         res.status(200).json({
             message: "Cources fetched successfully",
             data: cources,
