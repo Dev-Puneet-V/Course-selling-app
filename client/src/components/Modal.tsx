@@ -10,8 +10,8 @@ const Modal: React.FC<ModalProps> = (props) => {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#423737] bg-opacity-50 z-50">
-          <div className="bg-white p-4 rounded-md shadow-2xl shadow-slate-500">
+        <div className="fixed inset-0 flex items-center justify-center bg-[#121212] bg-opacity-50 z-50">
+          <div className=" bg-[#1E1E1E] p-8 rounded-xl shadow-lg border border-[#242424]">
             {children}
           </div>
         </div>

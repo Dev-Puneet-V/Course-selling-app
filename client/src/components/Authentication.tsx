@@ -94,135 +94,117 @@ const Authentication: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#E6D6CE] bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
+    <div className="fixed inset-0 flex items-center justify-center bg-[#121212] bg-opacity-80 z-50">
+      <div className="bg-[#1E1E1E] p-8 rounded-xl shadow-lg border border-[#242424] w-96 relative">
+        {/* Close Button */}
         <button
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
+          className="absolute top-4 right-4 text-[#00FFAA] hover:text-[#FFD700] transition-colors duration-300"
           onClick={handleCloseButton}
         >
           <XCircleIcon className="h-6 w-6" />
         </button>
-        <h2 className="text-xl font-bold mb-4 text-center">
+
+        {/* Form Title */}
+        <h2 className="text-2xl font-bold text-[#FFD700] mb-6 text-center">
           {isLogin ? "Login" : "Sign Up"}
         </h2>
+
+        {/* Formik Form */}
         <Formik
           initialValues={initialValues}
-          onSubmit={(values, actions) => {
-            console.log({ values, actions });
-            handleAuthentication(values);
-          }}
+          onSubmit={(values) => handleAuthentication(values)}
           validationSchema={!isLogin ? SignupSchema : undefined}
         >
           {({ errors, touched }) => (
-            <Form className="flex flex-col gap-3">
+            <Form className="flex flex-col gap-4">
+              {/* Name Field (for Sign Up) */}
               {!isLogin && (
                 <>
-                  <label htmlFor="name" className="font-medium">
+                  <label htmlFor="name" className="text-[#00FFAA] font-medium">
                     Full Name
                   </label>
                   <Field
                     id="name"
                     name="name"
                     placeholder="Enter full name"
-                    className="p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
+                    className="p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none"
                   />
-                  {errors.name && touched.name ? (
-                    <div className="text-[12px] text-red-500">
-                      {errors.name}
-                    </div>
-                  ) : null}
+                  {errors.name && touched.name && (
+                    <div className="text-sm text-red-500">{errors.name}</div>
+                  )}
                 </>
               )}
-              <label htmlFor="email" className="font-medium">
+
+              {/* Email Field */}
+              <label htmlFor="email" className="text-[#00FFAA] font-medium">
                 Email
               </label>
               <Field
                 id="email"
                 name="email"
                 placeholder="Enter email"
-                className="p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
+                className="p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none"
                 type="email"
               />
-              {errors.email && touched.email ? (
-                <div className="text-[12px] text-red-500">{errors.email}</div>
-              ) : null}
-              <label htmlFor="password" className="font-medium">
+              {errors.email && touched.email && (
+                <div className="text-sm text-red-500">{errors.email}</div>
+              )}
+
+              {/* Password Field */}
+              <label htmlFor="password" className="text-[#00FFAA] font-medium">
                 Password
               </label>
               <Field
                 id="password"
                 name="password"
-                className="p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
                 placeholder="Enter password"
+                className="p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none"
                 type="password"
               />
-              {errors.password && touched.password ? (
-                <div className="text-[12px] text-red-500">
-                  {errors.password}
-                </div>
-              ) : null}
+              {errors.password && touched.password && (
+                <div className="text-sm text-red-500">{errors.password}</div>
+              )}
+
+              {/* Confirm Password Field (for Sign Up) */}
               {!isLogin && (
                 <>
-                  <label htmlFor="confirmPassword" className="font-medium">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="text-[#00FFAA] font-medium"
+                  >
                     Confirm Password
                   </label>
                   <Field
                     id="confirmPassword"
                     name="confirmPassword"
                     placeholder="Confirm password"
-                    className="p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
+                    className="p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none"
                     type="password"
                   />
-                  {errors.confirmPassword && touched.confirmPassword ? (
-                    <div className="text-[12px] text-red-500">
+                  {errors.confirmPassword && touched.confirmPassword && (
+                    <div className="text-sm text-red-500">
                       {errors.confirmPassword}
                     </div>
-                  ) : null}
+                  )}
                 </>
               )}
-              {!isLogin && (
-                <>
-                  <label className="font-medium">User Type</label>
-                  <div className="flex gap-4">
-                    <label className="flex items-center">
-                      <Field
-                        type="radio"
-                        name="role"
-                        value="admin"
-                        className="mr-2"
-                      />
-                      Admin
-                    </label>
-                    <label className="flex items-center">
-                      <Field
-                        type="radio"
-                        name="role"
-                        value="user"
-                        className="mr-2"
-                      />
-                      Normal User
-                    </label>
-                  </div>
-                  {errors.role && touched.role ? (
-                    <div className="text-[12px] text-red-500">
-                      {errors.role}
-                    </div>
-                  ) : null}
-                </>
-              )}
+
+              {/* Submit Button */}
               <button
                 type="submit"
-                className="bg-blue-600 text-white font-bold p-2 rounded-md shadow hover:bg-blue-700 mt-4 cursor-pointer"
+                className="bg-[#00FFAA] text-black font-bold p-2 rounded-md shadow hover:bg-[#FFD700] hover:text-black transition-colors duration-300 mt-4"
               >
                 {isLogin ? "Login" : "Sign Up"}
               </button>
             </Form>
           )}
         </Formik>
-        <p className="text-center text-sm mt-4">
+
+        {/* Toggle Between Login and Sign Up */}
+        <p className="text-center text-sm mt-4 text-gray-300">
           {isLogin ? "Don't have an account?" : "Already have an account?"}
           <button
-            className="text-blue-600 font-medium ml-1 hover:underline cursor-pointer"
+            className="text-[#00FFAA] font-medium ml-1 hover:underline cursor-pointer"
             onClick={() => setIsLogin(!isLogin)}
           >
             {isLogin ? "Sign Up" : "Login"}

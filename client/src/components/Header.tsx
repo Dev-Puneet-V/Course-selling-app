@@ -52,19 +52,21 @@ const Header: React.FC = () => {
   };
 
   return (
-    <div className="h-18 bg-[#E6D6CE] w-full flex justify-between items-center p-4">
-      <p className="font-semibold text-2xl text-brown opacity-100">100xKnow</p>
+    <header className="w-full h-16 bg-[#1A1A1A] flex justify-between items-center px-6 shadow-lg">
+      <p className="text-[#00FFAA] font-bold text-3xl max-sm:text-xl">
+        100xKnow
+      </p>
       <div className="flex gap-4 items-center max-sm:gap-2">
         {!authenticationData?.isAuthenticated && (
           <button
-            className="bg-[#D7CDCD] w-28 max-sm:w-24 rounded-4xl py-2 font-bold cursor-pointer shadow hover:opacity-75"
+            className="bg-[#FFD700] text-black px-6 py-2 rounded-lg font-bold shadow hover:bg-[#00FFAA] transition-all duration-300 max-sm:px-4 max-sm:py-1 max-sm:text-sm"
             onClick={() => handleAuthentication("signin")}
           >
             Sign In
           </button>
         )}
         <button
-          className="bg-[#423737] w-28 max-sm:w-24 rounded-4xl py-2 font-bold cursor-pointer text-white shadow hover:opacity-75"
+          className="bg-[#242424] text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-[#00FFAA] hover:text-black transition-all duration-300 max-sm:px-4 max-sm:py-1 max-sm:text-sm"
           onClick={() => handleAuthentication("signup")}
         >
           {!authenticationData?.isAuthenticated ? "Join Now" : "Log Out"}
@@ -73,7 +75,7 @@ const Header: React.FC = () => {
       <Modal isOpen={authenticationData?.authenticationFormState.isVisible}>
         <Authentication />
       </Modal>
-    </div>
+    </header>
   );
 };
 

@@ -55,78 +55,95 @@ const ContentForm: React.FC<ContentFormType> = (props) => {
     const data = response.data;
     const status = response.status;
     if (status === 200) {
-      alert("Data successfully added : " + data);
+      alert("Data successfully added: " + data);
       handleCloseButton();
     }
     console.log("Form Submitted", formData);
   };
 
   return (
-    <div className="p-4 relative w-[350px] max-sm:w-[100vw] max-sm:h-[100vh]">
+    <div className="p-6 bg-[#1E1E1E] rounded-lg shadow-lg border border-[#242424] w-[350px] max-sm:w-[90vw] relative">
+      {/* Close Button */}
       <button
-        className="absolute top-1 right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
+        className="absolute top-4 right-4 text-[#00FFAA] hover:text-[#FFD700] transition-colors duration-300"
         onClick={handleCloseButton}
       >
         <XCircleIcon className="h-6 w-6" />
       </button>
+
+      {/* Form Title */}
+      <h2 className="text-2xl font-bold text-[#FFD700] mb-6">Add Content</h2>
+
+      {/* Formik Form */}
       <Formik
         initialValues={initialValues}
         onSubmit={handleContentCreation}
         validationSchema={ContentSchema}
       >
         {({ errors, touched, setFieldValue }) => (
-          <Form className="flex flex-col gap-3">
-            <label htmlFor="contentType" className="font-medium">
-              Content Type
-            </label>
-            <Field
-              as="select"
-              id="contentType"
-              name="contentType"
-              className="p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
-            >
-              <option value="video">Video</option>
-              <option value="pdf">PDF</option>
-            </Field>
-            {errors.contentType && touched.contentType && (
-              <div className="text-[12px] text-red-500">
-                {errors.contentType}
-              </div>
-            )}
+          <Form className="flex flex-col gap-4">
+            {/* Content Type Field */}
+            <div>
+              <label
+                htmlFor="contentType"
+                className="text-[#00FFAA] font-medium"
+              >
+                Content Type
+              </label>
+              <Field
+                as="select"
+                id="contentType"
+                name="contentType"
+                className="w-full p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none"
+              >
+                <option value="video">Video</option>
+                <option value="pdf">PDF</option>
+              </Field>
+              {errors.contentType && touched.contentType && (
+                <div className="text-sm text-red-500">{errors.contentType}</div>
+              )}
+            </div>
 
-            <label htmlFor="topic" className="font-medium">
-              Topic
-            </label>
-            <Field
-              id="topic"
-              name="topic"
-              placeholder="Enter topic name"
-              className="p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
-            />
-            {errors.topic && touched.topic && (
-              <div className="text-[12px] text-red-500">{errors.topic}</div>
-            )}
+            {/* Topic Field */}
+            <div>
+              <label htmlFor="topic" className="text-[#00FFAA] font-medium">
+                Topic
+              </label>
+              <Field
+                id="topic"
+                name="topic"
+                placeholder="Enter topic name"
+                className="w-full p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none"
+              />
+              {errors.topic && touched.topic && (
+                <div className="text-sm text-red-500">{errors.topic}</div>
+              )}
+            </div>
 
-            <label htmlFor="content" className="font-medium">
-              Upload Content
-            </label>
-            <input
-              id="content"
-              name="content"
-              type="file"
-              className="cursor-pointer p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
-              onChange={(event) => {
-                const file = event.currentTarget.files?.[0] || null;
-                setFieldValue("content", file);
-              }}
-            />
-            {errors.content && touched.content && (
-              <div className="text-[12px] text-red-500">{errors.content}</div>
-            )}
+            {/* File Upload Field */}
+            <div>
+              <label htmlFor="content" className="text-[#00FFAA] font-medium">
+                Upload Content
+              </label>
+              <input
+                id="content"
+                name="content"
+                type="file"
+                className="w-full p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none cursor-pointer"
+                onChange={(event) => {
+                  const file = event.currentTarget.files?.[0] || null;
+                  setFieldValue("content", file);
+                }}
+              />
+              {errors.content && touched.content && (
+                <div className="text-sm text-red-500">{errors.content}</div>
+              )}
+            </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
-              className="bg-blue-600 text-white font-bold p-2 rounded-md shadow hover:bg-blue-700 mt-4 cursor-pointer"
+              className="w-full bg-[#00FFAA] text-black font-bold p-2 rounded-md shadow hover:bg-[#FFD700] transition-colors duration-300 mt-4"
             >
               Upload Content
             </button>
