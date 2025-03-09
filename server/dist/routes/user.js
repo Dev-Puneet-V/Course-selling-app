@@ -142,7 +142,7 @@ router.get("/cources", middleware_js_1.auth, (req, res) => __awaiter(void 0, voi
         const user = req.user;
         const cources = yield course_js_1.default.find({
             owner: user === null || user === void 0 ? void 0 : user._id,
-        });
+        }).populate("contents");
         res.status(200).json({
             message: "Cources",
             data: cources,

@@ -45,7 +45,7 @@ const Authentication: React.FC = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "user", // Default role
+    role: "user",
   };
 
   const handleCloseButton = () => {
@@ -85,7 +85,7 @@ const Authentication: React.FC = () => {
             },
             user: data?.data,
           }));
-          navigate("/home");
+          navigate("/course/explore");
         }
       }
     } catch (error) {

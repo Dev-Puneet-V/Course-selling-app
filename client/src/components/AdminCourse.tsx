@@ -41,7 +41,7 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
       console.error("Error deleting content:", error);
     } finally {
       setConfirmModalVisibility(false);
-      navigate("/home");
+      navigate("/course/explore");
     }
   };
   return (

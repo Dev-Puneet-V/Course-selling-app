@@ -6,9 +6,9 @@ import React from "react";
 const PrivateRoute: React.FC = () => {
   const location = useLocation();
   const authenticationData = useRecoilValue(authState);
-
+  console.log(authenticationData.isAuthenticated);
   if (location.pathname === "/" && authenticationData?.isAuthenticated) {
-    return <Navigate to={"/home"} replace />;
+    return <Navigate to={"/course/explore"} replace />;
   }
 
   if (!authenticationData?.isAuthenticated) {

@@ -33,7 +33,7 @@ router.get("/:id", auth, async (req: AuthenticatedRequest, res: Response) => {
     const user = req.user;
     const course = await Course.findOne({
       _id: id,
-      owner: user?._id,
+      $or: [{ owner: user?._id }, { subscribers: user?._id }],
     }).populate("contents");
     res.status(200).json({
       message: "Course found successfully",
@@ -268,12 +268,6 @@ router.delete(
       });
     }
   }
-);
-// TODO - implement it when user has access to it
-router.get(
-  "/:courseId/content",
-  auth,
-  (req: AuthenticatedRequest, res: Response) => {}
 );
 
 export default router;

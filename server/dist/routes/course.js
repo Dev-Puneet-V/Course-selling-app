@@ -44,7 +44,7 @@ router.get("/:id", middleware_1.auth, (req, res) => __awaiter(void 0, void 0, vo
         const user = req.user;
         const course = yield course_1.default.findOne({
             _id: id,
-            owner: user === null || user === void 0 ? void 0 : user._id,
+            $or: [{ owner: user === null || user === void 0 ? void 0 : user._id }, { subscribers: user === null || user === void 0 ? void 0 : user._id }],
         }).populate("contents");
         res.status(200).json({
             message: "Course found successfully",
@@ -244,7 +244,5 @@ router.delete("/:courseId/content/:contentId", middleware_1.auth, middleware_1.i
         });
     }
 }));
-// TODO - implement it when user has access to it
-router.get("/:courseId/content", middleware_1.auth, (req, res) => { });
 exports.default = router;
 //user -> see course -> click on purchase -> once clicked on purchase -> buy it and save to db ->

@@ -155,7 +155,7 @@ router.get(
       const user = req.user;
       const cources = await Course.find({
         owner: user?._id,
-      });
+      }).populate("contents");
       res.status(200).json({
         message: "Cources",
         data: cources,
