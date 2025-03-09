@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { UsersIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import LoadingSpinner from "./common/LoadingSpinner";
+import Toast from "./common/Toast";
 
 type Course = {
   _id: string;
@@ -17,8 +19,21 @@ type Course = {
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
   const { type } = useParams();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type: "success" | "error";
+  }>({
+    show: false,
+    message: "",
+    type: "success",
+  });
 
   const handlePayment = async (courseId: string) => {
+    setIsLoading(true);
+    setToast({ show: false, message: "", type: "success" });
+
     try {
       const { data: orderData } = await axios.post(
         "http://localhost:3000/api/v1/payment/request/" + courseId,
@@ -42,6 +57,7 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
         order_id: orderData.data.id,
         handler: async (paymentData: any) => {
           try {
+            setIsLoading(true);
             const { data: verifyData } = await axios.post(
               "http://localhost:3000/api/v1/payment/confirm",
               {
@@ -58,28 +74,66 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
             );
 
             if (verifyData.success) {
-              alert("Payment Successful!");
+              setToast({
+                show: true,
+                message: "Payment successful! Redirecting...",
+                type: "success",
+              });
+              setTimeout(() => {
+                navigate("/course/me");
+              }, 2000);
             } else {
-              alert("Payment Failed! Try again.");
+              setToast({
+                show: true,
+                message: "Payment verification failed. Please try again.",
+                type: "error",
+              });
             }
-          } catch (error) {
-            console.error("Payment verification failed:", error);
-            alert("Payment verification failed. Try again.");
+          } catch (error: any) {
+            setToast({
+              show: true,
+              message:
+                error.response?.data?.message ||
+                "Payment verification failed. Please try again.",
+              type: "error",
+            });
+          } finally {
+            setIsLoading(false);
           }
         },
-        theme: { color: "#3399cc" },
+        modal: {
+          ondismiss: function () {
+            setIsLoading(false);
+          },
+        },
+        theme: { color: "#00FFAA" },
       };
 
       const razorpayInstance = new (window as any).Razorpay(options);
       razorpayInstance.open();
-    } catch (error) {
-      console.error("Payment error:", error);
-      alert("Something went wrong. Please try again.");
+    } catch (error: any) {
+      setToast({
+        show: true,
+        message:
+          error.response?.data?.message ||
+          "Failed to initiate payment. Please try again.",
+        type: "error",
+      });
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="max-w-sm mx-auto shadow-lg rounded-2xl overflow-hidden bg-[#1E1E1E] border border-[#242424]">
+      {/* Toast Notification */}
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
+      )}
+
       {/* Course Image */}
       <img
         src={course.image.url}
@@ -116,7 +170,10 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
 
         {/* Purchase/Detailed View Button */}
         <button
-          className="cursor-pointer w-full bg-[#00FFAA] hover:bg-[#FFD700] text-black py-2 rounded-lg font-medium transition-colors duration-300"
+          disabled={isLoading}
+          className={`w-full bg-[#00FFAA] hover:bg-[#FFD700] text-black py-3 rounded-lg font-medium transition-all duration-300 relative ${
+            isLoading ? "opacity-70 cursor-not-allowed" : ""
+          }`}
           onClick={() => {
             if (type === "explore") {
               handlePayment(course._id);
@@ -125,7 +182,16 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
             }
           }}
         >
-          {type === "explore" ? "Purchase" : "Detailed View"}
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <LoadingSpinner size="sm" />
+              <span>{type === "explore" ? "Processing..." : "Loading..."}</span>
+            </div>
+          ) : type === "explore" ? (
+            "Purchase"
+          ) : (
+            "Detailed View"
+          )}
         </button>
       </div>
     </div>

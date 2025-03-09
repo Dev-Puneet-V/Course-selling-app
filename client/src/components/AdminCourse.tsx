@@ -5,29 +5,36 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import axios, { AxiosError } from "axios";
+import { coursesState, courseOperations } from "../utils/atoms/info";
+import { Course, ToastState } from "../types/course";
 import Modal from "./Modal";
-import axios from "axios";
+import Toast from "./common/Toast";
+import LoadingSpinner from "./common/LoadingSpinner";
 
-type Course = {
-  _id: string;
-  image: {
-    url: string;
-  };
-  name: string;
-  price: number;
-  subscribers: string[];
-  description: string;
-};
+interface AdminCourseProps {
+  course: Course;
+}
 
-const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
+const AdminCourse: React.FC<AdminCourseProps> = ({ course }) => {
   const [isConfirmModalVisible, setConfirmModalVisibility] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<ToastState>({
+    show: false,
+    message: "",
+    type: "success",
+  });
+
   const navigate = useNavigate();
+  const setCourses = useSetRecoilState(coursesState);
 
   const handleClick = () => {
     navigate("/course/watch/" + course?._id);
   };
 
   const handleDeleteCourse = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.delete(
         `http://localhost:3000/api/v1/course/${course._id}`,
@@ -35,19 +42,55 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
           withCredentials: true,
         }
       );
-      if (response.status !== 200) {
-        throw new Error(response?.data?.message);
+
+      if (response.status === 200) {
+        // Update Recoil state by removing the deleted course
+        setCourses((currentCourses) =>
+          courseOperations.removeCourse(currentCourses, course._id)
+        );
+
+        setToast({
+          show: true,
+          message: "Course deleted successfully",
+          type: "success",
+        });
+
+        setTimeout(() => {
+          setConfirmModalVisibility(false);
+        }, 2000);
       }
     } catch (error) {
-      console.error("Error deleting content:", error);
+      let errorMessage = "Failed to delete course. Please try again.";
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      setToast({
+        show: true,
+        message: errorMessage,
+        type: "error",
+      });
     } finally {
-      setConfirmModalVisibility(false);
-      navigate("/course/explore");
+      setIsLoading(false);
     }
+  };
+
+  const handleToastClose = () => {
+    setToast((prev) => ({ ...prev, show: false }));
   };
 
   return (
     <div className="max-w-sm mx-auto shadow-lg rounded-2xl overflow-hidden bg-[#1E1E1E] border border-[#242424]">
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={handleToastClose}
+        />
+      )}
+
       {/* Course Image */}
       <img
         src={course.image.url}
@@ -108,12 +151,16 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
           <div className="flex gap-4">
             <button
               onClick={handleDeleteCourse}
-              className="hover:opacity-80 cursor-pointer bg-red-500 text-white rounded font-bold w-[100px] p-2 transition-colors duration-300"
+              disabled={isLoading}
+              className={`hover:opacity-80 cursor-pointer bg-red-500 text-white rounded font-bold w-[100px] p-2 transition-colors duration-300 flex items-center justify-center ${
+                isLoading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Confirm
+              {isLoading ? <LoadingSpinner size="sm" /> : "Confirm"}
             </button>
             <button
               onClick={() => setConfirmModalVisibility(false)}
+              disabled={isLoading}
               className="hover:opacity-80 cursor-pointer border border-[#00FFAA] text-[#00FFAA] rounded font-bold w-[100px] p-2 transition-colors duration-300"
             >
               Cancel
@@ -123,11 +170,6 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
       </Modal>
     </div>
   );
-};
-
-const AdminCourse: React.FC<Course> = (props) => {
-  const course: Course = { ...props };
-  return <CourseCard course={course} />;
 };
 
 export default AdminCourse;

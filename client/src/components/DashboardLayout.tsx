@@ -4,11 +4,11 @@ import { Outlet } from "react-router-dom";
 
 const DashboardLayout: React.FC = () => {
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen bg-[#121212]">
       <Sidebar />
-      <div className="flex-1 p-4 overflow-auto">
+      <main className="flex-1 relative">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 };

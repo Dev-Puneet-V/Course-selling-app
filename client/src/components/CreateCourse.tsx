@@ -1,40 +1,77 @@
-import { Field, Formik, Form } from "formik";
-import React from "react";
+import { Field, Formik, Form, FormikHelpers } from "formik";
+import React, { useState } from "react";
 import * as Yup from "yup";
 import { XCircleIcon } from "@heroicons/react/20/solid";
-import axios from "axios";
-
-interface CourseInitial {
-  name: string;
-  price: number;
-  description: string;
-  course: File | null;
-}
+import axios, { AxiosError } from "axios";
+import { useSetRecoilState } from "recoil";
+import { coursesState, courseOperations } from "../utils/atoms/info";
+import {
+  CourseFormData,
+  ToastState,
+  ApiResponse,
+  Course,
+} from "../types/course";
+import LoadingSpinner from "./common/LoadingSpinner";
+import Toast from "./common/Toast";
 
 interface CreateCourseProps {
   handleCloseButton: () => void;
+  onSuccess?: (message: string) => void;
 }
 
 const CourseSchema = Yup.object().shape({
-  name: Yup.string().required("Name is required"),
+  name: Yup.string()
+    .required("Name is required")
+    .min(3, "Name must be at least 3 characters")
+    .max(50, "Name must be less than 50 characters"),
   price: Yup.number()
     .min(0, "Price must be minimum 0")
     .required("Price is required"),
   description: Yup.string()
     .min(5, "Description must be minimum 5 characters")
+    .max(500, "Description must be less than 500 characters")
     .required("Description is required"),
-  course: Yup.mixed().nullable().required("Attachment is required"),
+  course: Yup.mixed()
+    .required("Thumbnail is required")
+    .test("fileSize", "File size too large (max 5MB)", (value) => {
+      if (!value) return true;
+      return (value as File).size <= 5 * 1024 * 1024;
+    })
+    .test("fileType", "Unsupported file type", (value) => {
+      if (!value) return true;
+      return ["image/jpeg", "image/png", "image/jpg"].includes(
+        (value as File).type
+      );
+    }),
 });
 
-const CreateCourse: React.FC<CreateCourseProps> = ({ handleCloseButton }) => {
-  const initialValues: CourseInitial = {
-    name: "",
-    price: 0,
-    description: "",
-    course: null,
-  };
+const initialValues: CourseFormData = {
+  name: "",
+  price: 0,
+  description: "",
+  course: null,
+};
 
-  const handleCourseCreation = async (values: CourseInitial) => {
+const CreateCourse: React.FC<CreateCourseProps> = ({
+  handleCloseButton,
+  onSuccess,
+}) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [toast, setToast] = useState<ToastState>({
+    show: false,
+    message: "",
+    type: "success",
+  });
+
+  const setCourses = useSetRecoilState(coursesState);
+
+  const handleCourseCreation = async (
+    values: CourseFormData,
+    { resetForm }: FormikHelpers<CourseFormData>
+  ): Promise<void> => {
+    setIsLoading(true);
+    setToast({ show: false, message: "", type: "success" });
+
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("price", values.price.toString());
@@ -44,7 +81,7 @@ const CreateCourse: React.FC<CreateCourseProps> = ({ handleCloseButton }) => {
     }
 
     try {
-      const response = await axios.post(
+      const response = await axios.post<ApiResponse<Course>>(
         `http://localhost:3000/api/v1/course`,
         formData,
         {
@@ -53,94 +90,168 @@ const CreateCourse: React.FC<CreateCourseProps> = ({ handleCloseButton }) => {
         }
       );
 
-      if (response.status === 200) {
-        console.log("Course created successfully:", response.data);
-        handleCloseButton();
+      if (response.status === 200 && response.data?.data) {
+        // Update Recoil state with new course
+        setCourses((currentCourses) =>
+          courseOperations.addCourse(currentCourses, response.data.data!)
+        );
+
+        const successMessage = "Course created successfully!";
+        if (onSuccess) {
+          onSuccess(successMessage);
+        } else {
+          setToast({
+            show: true,
+            message: successMessage,
+            type: "success",
+          });
+          setTimeout(() => {
+            handleCloseButton();
+          }, 2000);
+        }
+        resetForm();
       }
     } catch (error) {
-      console.error("Error creating course:", error);
+      let errorMessage = "Failed to create course. Please try again.";
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      setToast({
+        show: true,
+        message: errorMessage,
+        type: "error",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleToastClose = (): void => {
+    setToast((prev) => ({ ...prev, show: false }));
+  };
+
   return (
-    <div className="p-4 relative w-[300px] max-sm:w-[100vw] max-sm:h-[100vh]">
+    <div className="p-6 relative w-[350px] max-sm:w-[90vw] max-sm:h-[90vh] bg-[#1E1E1E] rounded-lg">
       <button
-        className="absolute top-1 right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
+        className="absolute top-4 right-4 text-[#00FFAA] hover:text-[#FFD700] transition-colors duration-300"
         onClick={handleCloseButton}
+        type="button"
+        aria-label="Close"
       >
         <XCircleIcon className="h-6 w-6" />
       </button>
+
+      <h2 className="text-2xl font-bold text-[#FFD700] mb-6">Create Course</h2>
+
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={handleToastClose}
+        />
+      )}
+
       <Formik
         initialValues={initialValues}
-        onSubmit={(values) => handleCourseCreation(values)}
         validationSchema={CourseSchema}
+        onSubmit={handleCourseCreation}
       >
         {({ errors, touched, setFieldValue }) => (
-          <Form className="flex flex-col gap-3">
-            <label htmlFor="name" className="font-medium">
-              Course Name
-            </label>
-            <Field
-              id="name"
-              name="name"
-              placeholder="Enter full name"
-              className="p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
-            />
-            {errors.name && touched.name && (
-              <div className="text-[12px] text-red-500">{errors.name}</div>
-            )}
+          <Form className="flex flex-col gap-4">
+            <div>
+              <label htmlFor="name" className="text-[#00FFAA] font-medium">
+                Course Name
+              </label>
+              <Field
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Enter course name"
+                className="w-full p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none"
+              />
+              {errors.name && touched.name && (
+                <div className="text-sm text-red-500">{errors.name}</div>
+              )}
+            </div>
 
-            <label htmlFor="price" className="font-medium">
-              Price
-            </label>
-            <Field
-              id="price"
-              name="price"
-              placeholder="Enter price of course"
-              className="p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
-              type="number"
-            />
-            {errors.price && touched.price && (
-              <div className="text-[12px] text-red-500">{errors.price}</div>
-            )}
+            <div>
+              <label htmlFor="price" className="text-[#00FFAA] font-medium">
+                Price
+              </label>
+              <Field
+                id="price"
+                name="price"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Enter price"
+                className="w-full p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none"
+              />
+              {errors.price && touched.price && (
+                <div className="text-sm text-red-500">{errors.price}</div>
+              )}
+            </div>
 
-            <label htmlFor="description" className="font-medium">
-              Description
-            </label>
-            <Field
-              id="description"
-              name="description"
-              className="p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
-              placeholder="Enter description"
-            />
-            {errors.description && touched.description && (
-              <div className="text-[12px] text-red-500">
-                {errors.description}
-              </div>
-            )}
+            <div>
+              <label
+                htmlFor="description"
+                className="text-[#00FFAA] font-medium"
+              >
+                Description
+              </label>
+              <Field
+                as="textarea"
+                id="description"
+                name="description"
+                placeholder="Enter description"
+                className="w-full p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none resize-none h-24"
+              />
+              {errors.description && touched.description && (
+                <div className="text-sm text-red-500">{errors.description}</div>
+              )}
+            </div>
 
-            <label htmlFor="course-file" className="font-medium">
-              Course File
-            </label>
-            <input
-              id="course-file"
-              name="course"
-              type="file"
-              className="cursor-pointer p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200"
-              onChange={(event) => {
-                const file = event.currentTarget.files?.[0] || null;
-                setFieldValue("course", file);
-              }}
-            />
-            {errors.course && touched.course && (
-              <div className="text-[12px] text-red-500">{errors.course}</div>
-            )}
+            <div>
+              <label
+                htmlFor="course-file"
+                className="text-[#00FFAA] font-medium"
+              >
+                Course Thumbnail
+              </label>
+              <input
+                id="course-file"
+                name="course"
+                type="file"
+                accept="image/jpeg,image/png,image/jpg"
+                onChange={(event) => {
+                  const file = event.currentTarget.files?.[0] || null;
+                  setFieldValue("course", file);
+                }}
+                className="w-full p-2 bg-[#242424] border border-[#00FFAA] rounded-md text-white focus:ring-2 focus:ring-[#FFD700] outline-none cursor-pointer"
+              />
+              {errors.course && touched.course && (
+                <div className="text-sm text-red-500">{errors.course}</div>
+              )}
+            </div>
 
             <button
               type="submit"
-              className="bg-blue-600 text-white font-bold p-2 rounded-md shadow hover:bg-blue-700 mt-4 cursor-pointer"
+              disabled={isLoading}
+              className={`w-full bg-[#00FFAA] text-black font-bold p-3 rounded-lg shadow hover:bg-[#FFD700] transition-all duration-300 mt-4 relative ${
+                isLoading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Create course
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <LoadingSpinner size="sm" />
+                  <span>Creating Course...</span>
+                </div>
+              ) : (
+                "Create Course"
+              )}
             </button>
           </Form>
         )}
