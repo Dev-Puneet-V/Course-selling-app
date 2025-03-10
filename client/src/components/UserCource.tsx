@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { UsersIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
-import axios from "axios";
+import api from "../utils/axios";
 import { useNavigate, useParams } from "react-router-dom";
 import LoadingSpinner from "./common/LoadingSpinner";
 import Toast from "./common/Toast";
@@ -35,21 +35,14 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
     setToast({ show: false, message: "", type: "success" });
 
     try {
-      const { data: orderData } = await axios.post(
-        "http://localhost:3000/api/v1/payment/request/" + courseId,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const { data: orderData } = await api.post(
+        `/payment/request/${courseId}`
       );
 
       if (!orderData?.data) throw new Error("Order creation failed");
 
       const options = {
-        key: "rzp_test_r9x0083Lr1W1nI",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: orderData.data.amount,
         currency: "INR",
         name: "Your Website",
@@ -58,20 +51,11 @@ const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
         handler: async (paymentData: any) => {
           try {
             setIsLoading(true);
-            const { data: verifyData } = await axios.post(
-              "http://localhost:3000/api/v1/payment/confirm",
-              {
-                orderId: paymentData.razorpay_order_id,
-                paymentId: paymentData.razorpay_payment_id,
-                signature: paymentData.razorpay_signature,
-              },
-              {
-                withCredentials: true,
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
+            const { data: verifyData } = await api.post("/payment/confirm", {
+              orderId: paymentData.razorpay_order_id,
+              paymentId: paymentData.razorpay_payment_id,
+              signature: paymentData.razorpay_signature,
+            });
 
             if (verifyData.success) {
               setToast({

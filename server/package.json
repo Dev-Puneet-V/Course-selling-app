@@ -6,7 +6,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon dist/index.js",
     "start": "node dist/index.js",
-    "build": "tsc && cpx .env dist/"
+    "build": "tsc && cpx \".env*\" dist/",
+    "test-env": "cross-env NODE_ENV=development ts-node test-env.ts",
+    "test-env:prod": "cross-env NODE_ENV=production ts-node test-env.ts"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +37,7 @@
     "@types/multer": "^1.4.12",
     "@types/node": "^22.13.5",
     "cpx": "^1.5.0",
+    "cross-env": "^7.0.3",
     "typescript": "^5.7.3"
   }
 }

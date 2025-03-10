@@ -25,7 +25,7 @@ router.get("/all", middleware_1.auth, (req, res) => __awaiter(void 0, void 0, vo
         const { type = "unpurchased" } = req.query;
         const user = req.user;
         let cources = yield course_1.default.find({
-            subscribers: type === "unpurchased" ? { $ne: user === null || user === void 0 ? void 0 : user._id } : user === null || user === void 0 ? void 0 : user._id,
+            "subscribers.user": type === "unpurchased" ? { $ne: user === null || user === void 0 ? void 0 : user._id } : user === null || user === void 0 ? void 0 : user._id,
         }).populate("contents");
         res.status(200).json({
             message: "Cources fetched successfully",

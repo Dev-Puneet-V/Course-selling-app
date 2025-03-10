@@ -3,6 +3,11 @@ export interface Image {
   publicId: string;
 }
 
+export interface Subscriber {
+  user: string;
+  joinedAt: string;
+}
+
 export interface Course {
   _id: string;
   name: string;
@@ -10,7 +15,7 @@ export interface Course {
   price: number;
   image: Image;
   owner: string;
-  subscribers: string[];
+  subscribers: Subscriber[];
   contents: string[];
   createdAt: string;
   updatedAt: string;

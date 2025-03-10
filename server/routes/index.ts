@@ -7,4 +7,5 @@ const router = express.Router();
 router.use("/user", userRouter);
 router.use("/course", courseRouter);
 router.use("/payment", paymentRouter);
+
 export default router;

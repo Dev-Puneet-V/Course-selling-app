@@ -14,7 +14,8 @@ router.get("/all", auth, async (req: AuthenticatedRequest, res: Response) => {
     const { type = "unpurchased" } = req.query;
     const user = req.user;
     let cources = await Course.find({
-      subscribers: type === "unpurchased" ? { $ne: user?._id } : user?._id,
+      "subscribers.user":
+        type === "unpurchased" ? { $ne: user?._id } : user?._id,
     }).populate("contents");
     res.status(200).json({
       message: "Cources fetched successfully",

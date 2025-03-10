@@ -16,8 +16,14 @@ const courseSchema = new mongoose_1.default.Schema({
     },
     subscribers: [
         {
-            type: mongoose_1.default.Schema.Types.ObjectId,
-            ref: "User",
+            user: {
+                type: mongoose_1.default.Schema.Types.ObjectId,
+                ref: "User",
+            },
+            joinedAt: {
+                type: Date,
+                default: Date.now,
+            },
         },
     ],
     description: {

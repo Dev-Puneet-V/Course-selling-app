@@ -1,9 +1,14 @@
 import mongoose from "mongoose";
 
+interface ISubscriber {
+  user: mongoose.Types.ObjectId;
+  joinedAt: Date;
+}
+
 interface Icourse {
   name: string;
   price: number;
-  subscribers: mongoose.Types.ObjectId[];
+  subscribers: ISubscriber[];
   description: string;
   image: {
     url: string;
@@ -15,4 +20,4 @@ interface Icourse {
   updatedAt: Date;
 }
 
-export type { Icourse };
+export type { Icourse, ISubscriber };

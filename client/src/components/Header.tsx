@@ -1,6 +1,6 @@
 import { useRecoilState } from "recoil";
 import Cookie from "js-cookie";
-import axios from "axios";
+import api from "../utils/axios";
 import authState, { AuthState } from "../utils/atoms/auth";
 import Modal from "./Modal";
 import Authentication from "./Authentication";
@@ -11,19 +11,18 @@ const Header: React.FC = () => {
   const getLoggedInUser = async () => {
     const token = Cookie.get("token");
     if (token) {
-      const response = await axios.get("http://localhost:3000/api/v1/user/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = response.data;
-      const status = response.status;
-      if (status === 200) {
-        setAuthenticationData((prev: AuthState) => ({
-          ...prev,
-          isAuthenticated: true,
-          user: data?.data,
-        }));
+      try {
+        const response = await api.get("/user/me");
+        const data = response.data;
+        if (response.status === 200) {
+          setAuthenticationData((prev: AuthState) => ({
+            ...prev,
+            isAuthenticated: true,
+            user: data?.data,
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
       }
     }
   };

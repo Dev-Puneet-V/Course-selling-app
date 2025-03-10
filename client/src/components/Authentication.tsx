@@ -4,7 +4,7 @@ import { XCircleIcon } from "@heroicons/react/20/solid";
 import * as Yup from "yup";
 import { useRecoilState } from "recoil";
 import authState from "../utils/atoms/auth";
-import axios from "axios";
+import api from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 
 const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/;
@@ -60,15 +60,9 @@ const Authentication: React.FC = () => {
 
   const handleAuthentication = async (values: MyFormValues) => {
     try {
-      const response = await axios.post(
-        `http://localhost:3000/api/v1/user/${isLogin ? "signin" : "signup"}`,
-        values,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await api.post(
+        `/user/${isLogin ? "signin" : "signup"}`,
+        values
       );
       const data = response.data;
       const status = response.status;

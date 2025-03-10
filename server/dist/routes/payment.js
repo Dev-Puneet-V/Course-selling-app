@@ -94,9 +94,7 @@ router.post("/confirm", middleware_1.auth, (req, res) => __awaiter(void 0, void 
             throw error;
         }
         const generatedSignature = crypto_1.default
-            .createHmac("sha256", "to6zeo3KtATuNruXklQ1uuRP"
-        // variables.RAZORPAY_KEY_SECRET || "to6zeo3KtATuNruXklQ1uuRP"
-        )
+            .createHmac("sha256", "to6zeo3KtATuNruXklQ1uuRP")
             .update(orderId + "|" + paymentId)
             .digest("hex");
         if (generatedSignature === signature) {
@@ -106,9 +104,14 @@ router.post("/confirm", middleware_1.auth, (req, res) => __awaiter(void 0, void 
                 subscriber: order.user._id,
                 course: order.course,
             });
-            yield course_1.default.findOneAndUpdate({
-                _id: order === null || order === void 0 ? void 0 : order.course,
-            }, { $push: { subscribers: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id } });
+            yield course_1.default.findOneAndUpdate({ _id: order === null || order === void 0 ? void 0 : order.course }, {
+                $push: {
+                    subscribers: {
+                        user: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id,
+                        joinedAt: new Date(),
+                    },
+                },
+            });
             res.json({
                 success: true,
                 message: "Payment verified successfully",

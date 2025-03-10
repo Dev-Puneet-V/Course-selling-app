@@ -47,7 +47,13 @@ export const courseOperations = {
   ): Course[] => {
     return courses.map((course) =>
       course._id === courseId
-        ? { ...course, subscribers: [...course.subscribers, userId] }
+        ? {
+            ...course,
+            subscribers: [
+              ...course.subscribers,
+              { user: userId, joinedAt: new Date().toISOString() },
+            ],
+          }
         : course
     );
   },
@@ -127,7 +133,6 @@ export const purchasedCoursesSelector = selector<Course[]>({
     set(purchasedCoursesState, newValue);
   },
 });
-
 
 export type {};
 

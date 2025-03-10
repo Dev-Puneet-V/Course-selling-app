@@ -90,13 +90,10 @@ router.post(
         throw error;
       }
       const generatedSignature = crypto
-        .createHmac(
-          "sha256",
-          "to6zeo3KtATuNruXklQ1uuRP"
-          // variables.RAZORPAY_KEY_SECRET || "to6zeo3KtATuNruXklQ1uuRP"
-        )
+        .createHmac("sha256", "to6zeo3KtATuNruXklQ1uuRP")
         .update(orderId + "|" + paymentId)
         .digest("hex");
+
       if (generatedSignature === signature) {
         order.status = "paid";
         await order.save();
@@ -105,10 +102,15 @@ router.post(
           course: order.course,
         });
         await Course.findOneAndUpdate(
+          { _id: order?.course },
           {
-            _id: order?.course,
-          },
-          { $push: { subscribers: req.user?._id } }
+            $push: {
+              subscribers: {
+                user: req.user?._id,
+                joinedAt: new Date(),
+              },
+            },
+          }
         );
         res.json({
           success: true,
