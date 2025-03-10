@@ -10,7 +10,7 @@ import { AuthenticatedRequest } from "../utils/types/common.js";
 import { Icourse } from "../utils/types/course.js";
 const router = express.Router();
 
-router.get("/me", auth, async (req: AuthenticatedRequest, res: Response) => {
+router.get("/me", auth, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const user = req.user;
     let planeUserObject = user?.toObject();

@@ -22,11 +22,7 @@ export const isAdmin = (
   }
 };
 
-export const auth = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
+export const auth = async (req: any, res: any, next: any) => {
   try {
     // Try to get token from cookies first, then authorization header
     let token = req.cookies.token;
@@ -52,16 +48,17 @@ export const auth = async (
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         message: "User not found or invalid token.",
       });
+      return;
     }
 
     req.user = user;
     next();
   } catch (err) {
     console.error("Auth error:", err);
-    return res.status(401).json({
+    res.status(401).json({
       message: "Invalid or expired token. Please login again.",
     });
   }
