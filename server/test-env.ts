@@ -54,7 +54,7 @@ console.log("- Uploads Directory:", path.join(process.cwd(), "uploads"));
 async function testDbConnection() {
   console.log("\nTesting Database Connection...");
   try {
-    await mongoose.connect(variables.MONGODB_URI);
+    await mongoose.connect(variables.MONGO_URI);
     console.log("✅ Database connection successful");
     await mongoose.disconnect();
     console.log("✅ Database disconnection successful");
