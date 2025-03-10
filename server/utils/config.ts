@@ -12,7 +12,7 @@ dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 interface ConfigVariableType {
   PORT: string | number;
   NODE_ENV: string;
-  MONGODB_URI: string;
+  MONGO_URI: string;
   JWT_TOKEN_SECRET: string;
   JWT_EXPIRY: string | undefined;
   CLOUDINARY_CLOUD_NAME: string | undefined;
@@ -31,7 +31,7 @@ interface ConfigVariableType {
 const variables: ConfigVariableType = {
   PORT: process.env.PORT || 3000,
   NODE_ENV: process.env.NODE_ENV || "development",
-  MONGODB_URI: process.env.MONGODB_URI || "mongodb://localhost:27017/courseapp",
+  MONGO_URI: process.env.MONGO_URI || "mongodb://localhost:27017/courseapp",
   JWT_TOKEN_SECRET:
     process.env.JWT_TOKEN_SECRET || "your_development_jwt_secret",
   JWT_EXPIRY: process.env.JWT_EXPIRY,
