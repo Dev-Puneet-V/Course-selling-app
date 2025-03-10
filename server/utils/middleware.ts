@@ -22,7 +22,11 @@ export const isAdmin = (
   }
 };
 
-export const auth = async (req: any, res: any, next: any) => {
+export const auth = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // Try to get token from cookies first, then authorization header
     let token = req.cookies.token;
@@ -35,9 +39,10 @@ export const auth = async (req: any, res: any, next: any) => {
     }
 
     if (!token) {
-      return res.status(401).json({
+      res.status(401).json({
         message: "Authentication required. Please login.",
       });
+      return;
     }
 
     const decoded: IJwtDecoded = jwt.verify(
