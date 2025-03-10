@@ -12,7 +12,7 @@ console.log("- Environment:", variables.NODE_ENV);
 
 // Connection strings
 console.log("\nConnections:");
-console.log("- MongoDB URI:", variables.MONGODB_URI);
+console.log("- MongoDB URI:", variables.MONGO_URI);
 console.log("- CORS Origin:", variables.CORS_ORIGIN);
 
 // API Keys and Configurations
