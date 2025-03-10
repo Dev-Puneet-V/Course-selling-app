@@ -28,33 +28,41 @@ export const auth = async (
   next: NextFunction
 ) => {
   try {
-    let authToken = req.headers.authorization || req.cookies.token;
-    console.log(authToken);
-    if (!authToken) {
-      res.status(401).json({
-        message: "User is unauthorized",
-      });
-    } else {
-      if (authToken.split(" ")[0] === "Bearer") {
-        authToken = authToken.split(" ")[1]
-      }
-      const decoded: IJwtDecoded = jwt.verify(
-        authToken,
-        variables.JWT_TOKEN_SECRET
-      ) as IJwtDecoded;
-      const user = await User.findById(decoded.userId).select("-password");
+    // Try to get token from cookies first, then authorization header
+    let token = req.cookies.token;
 
-      if (!user) {
-        const error: any = new Error("Unauthorized");
-        error.status = 401;
-        throw error;
+    if (!token && req.headers.authorization) {
+      const authHeader = req.headers.authorization;
+      if (authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
       }
-      req.user = user;
-      next();
     }
+
+    if (!token) {
+      return res.status(401).json({
+        message: "Authentication required. Please login.",
+      });
+    }
+
+    const decoded: IJwtDecoded = jwt.verify(
+      token,
+      variables.JWT_TOKEN_SECRET
+    ) as IJwtDecoded;
+
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found or invalid token.",
+      });
+    }
+
+    req.user = user;
+    next();
   } catch (err) {
-    res.status(401).json({
-      message: "User is unauthorized",
+    console.error("Auth error:", err);
+    return res.status(401).json({
+      message: "Invalid or expired token. Please login again.",
     });
   }
 };

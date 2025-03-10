@@ -29,8 +29,20 @@ app.use(
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["set-cookie"],
   })
 );
+
+// Cookie settings middleware
+app.use((req, res, next) => {
+  res.cookie("token", req.cookies.token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    domain: process.env.NODE_ENV === "production" ? ".vercel.app" : "localhost",
+  });
+  next();
+});
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
