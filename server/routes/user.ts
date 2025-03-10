@@ -10,27 +10,31 @@ import { AuthenticatedRequest } from "../utils/types/common.js";
 import { Icourse } from "../utils/types/course.js";
 const router = express.Router();
 
-router.get("/me", auth, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-  try {
-    const user = req.user;
-    let planeUserObject = user?.toObject();
-    if (typeof planeUserObject === "object" && planeUserObject !== null) {
-      res.status(200).json({
-        message: "User successfully logged in",
-        data: {
-          ...planeUserObject,
-          password: undefined,
-          subscriptions: undefined,
-          __v: undefined,
-        },
+router.get(
+  "/me",
+  auth,
+  async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      const user = req.user;
+      let planeUserObject = user?.toObject();
+      if (typeof planeUserObject === "object" && planeUserObject !== null) {
+        res.status(200).json({
+          message: "User successfully logged in",
+          data: {
+            ...planeUserObject,
+            password: undefined,
+            subscriptions: undefined,
+            __v: undefined,
+          },
+        });
+      }
+    } catch (error: any) {
+      res.status(404).json({
+        message: "User not found",
       });
     }
-  } catch (error: any) {
-    res.status(404).json({
-      message: "User not found",
-    });
   }
-});
+);
 
 router.post("/signup", async (req: Request, res: Response) => {
   try {
@@ -122,7 +126,7 @@ router.post("/signin", async (req: Request, res: Response) => {
       // httpOnly: true, // Prevents client-side access via JavaScript
       secure: process.env.NODE_ENV === "production", // Only send cookie over HTTPS in production
       maxAge: 86400000, // 1 day in milliseconds
-      // sameSite: "strict", // Helps prevent CSRF attacks
+      sameSite: "none", // Helps prevent CSRF attacks
     });
     let planeUserObject = user.toObject();
     if (typeof planeUserObject === "object" && planeUserObject !== null) {
