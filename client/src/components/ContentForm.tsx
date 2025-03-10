@@ -1,5 +1,5 @@
 import { XCircleIcon } from "@heroicons/react/24/outline";
-import axios from "axios";
+import api from "../utils/axios";
 import { Field, Form, Formik } from "formik";
 import React from "react";
 import * as Yup from "yup";
@@ -44,14 +44,10 @@ const ContentForm: React.FC<ContentFormType> = (props) => {
       formData.append("content", values?.content);
     }
 
-    const response = await axios.post(
-      `http://localhost:3000/api/v1/course/${id}/content`,
-      formData,
-      {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
+    const response = await api.post(`/course/${id}/content`, formData, {
+      withCredentials: true,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     const data = response.data;
     const status = response.status;
     if (status === 200) {

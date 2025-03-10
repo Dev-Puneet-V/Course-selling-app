@@ -5,8 +5,9 @@ import { Course } from "../types/course";
 import AdminCourse from "./AdminCourse";
 import LoadingSpinner from "./common/LoadingSpinner";
 import Toast from "./common/Toast";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { ApiResponse } from "../types/course";
+import api from "../utils/axios";
 
 const AdminCourses: React.FC = () => {
   const [courses, setCourses] = useRecoilState<Course[]>(coursesState);
@@ -19,13 +20,7 @@ const AdminCourses: React.FC = () => {
         setIsLoading(true);
         setError(null);
 
-        const response = await axios.get<ApiResponse<Course[]>>(
-          `http://localhost:3000/api/v1/user/cources`,
-          {
-            withCredentials: true,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
+        const response = await api.get<ApiResponse<Course[]>>(`/user/cources`);
 
         if (!response.data?.data) {
           throw new Error("No data received from server");

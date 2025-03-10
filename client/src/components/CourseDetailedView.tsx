@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../utils/axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import moment from "moment";
@@ -22,10 +22,7 @@ const CourseDetailedView: React.FC = () => {
 
   const fetchCourse = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:3000/api/v1/course/${id}`,
-        { withCredentials: true }
-      );
+      const response = await api.get(`/course/${id}`);
       if (response.status === 200) setData(response.data?.data);
     } catch (error) {
       console.error("Error fetching course:", error);
@@ -41,9 +38,8 @@ const CourseDetailedView: React.FC = () => {
 
   const handleDeleteContent = async () => {
     try {
-      const response = await axios.delete(
-        `http://localhost:3000/api/v1/course/${id}/content/${currentContentDeletionId}`,
-        { withCredentials: true }
+      const response = await api.delete(
+        `/course/${id}/content/${currentContentDeletionId}`
       );
       if (response.status !== 200) {
         throw new Error(response?.data?.message);

@@ -2,7 +2,8 @@ import { Field, Formik, Form, FormikHelpers } from "formik";
 import React, { useState } from "react";
 import * as Yup from "yup";
 import { XCircleIcon } from "@heroicons/react/20/solid";
-import axios, { AxiosError } from "axios";
+import api from "../utils/axios";
+import { AxiosError } from "axios";
 import { useSetRecoilState } from "recoil";
 import { coursesState, courseOperations } from "../utils/atoms/info";
 import {
@@ -81,11 +82,10 @@ const CreateCourse: React.FC<CreateCourseProps> = ({
     }
 
     try {
-      const response = await axios.post<ApiResponse<Course>>(
-        `http://localhost:3000/api/v1/course`,
+      const response = await api.post<ApiResponse<Course>>(
+        `/course`,
         formData,
         {
-          withCredentials: true,
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
